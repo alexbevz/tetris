@@ -9,5 +9,5 @@ public interface Info {
     float LEFT_EDGE_X = 80;
     float BOTTOM_EDGE_Y = 134;
     float TOP_EDGE_Y = 773;
-    float SQUARE_WIDTH = 32;
+    float SQUARE_WIDTH = 32;//
 }

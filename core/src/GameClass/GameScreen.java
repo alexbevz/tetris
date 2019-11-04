@@ -118,7 +118,7 @@ public class GameScreen implements Screen {
                     new Block(240, Info.TOP_EDGE_Y - Info.SQUARE_WIDTH * 2, assetManager));
         }
 
-        if (Gdx.input.isKeyJustPressed(Input.Keys.D)) {
+        if (Gdx.input.isKeyJustPressed(Input.Keys.D)) {  //rotate right-90
             switch (current_state) {
                 case 0:
                     current_block.get(0).setPosition(current_block.get(1).getX(), current_block.get(1).getY());
@@ -148,14 +148,32 @@ public class GameScreen implements Screen {
         }
 
         if (Gdx.input.isKeyJustPressed(Input.Keys.A)) {
-            if (!deleted)
-                blocks.addAll(current_block);
-            System.out.println(blocks.size);
-            current_block.clear();
-            current_block.add(new Block(240, Info.TOP_EDGE_Y - Info.SQUARE_WIDTH, assetManager),
-                    new Block(240, Info.TOP_EDGE_Y - Info.SQUARE_WIDTH * 2, assetManager),
-                    new Block(208, Info.TOP_EDGE_Y - Info.SQUARE_WIDTH * 2, assetManager),
-                    new Block(272, Info.TOP_EDGE_Y - Info.SQUARE_WIDTH * 2, assetManager));
+            switch (current_state) {
+                case 0:
+                    current_block.get(0).setPosition(current_block.get(1).getX(), current_block.get(1).getY());
+                    current_block.get(1).setPosition(current_block.get(2).getX(), current_block.get(2).getY());
+                    current_block.get(2).setPosition(current_block.get(0).getX(), current_block.get(0).getY() - Info.SQUARE_WIDTH * 2);
+                    current_state = 1;
+                    break;
+                case 1:
+                    current_block.get(0).setPosition(current_block.get(1).getX(), current_block.get(1).getY());
+                    current_block.get(1).setPosition(current_block.get(2).getX(), current_block.get(2).getY());
+                    current_block.get(2).setPosition(current_block.get(0).getX() - Info.SQUARE_WIDTH * 2, current_block.get(0).getY());
+                    current_state = 2;
+                    break;
+                case 2:
+                    current_block.get(0).setPosition(current_block.get(1).getX(), current_block.get(1).getY());
+                    current_block.get(1).setPosition(current_block.get(2).getX(), current_block.get(2).getY());
+                    current_block.get(2).setPosition(current_block.get(0).getX(), current_block.get(0).getY() + Info.SQUARE_WIDTH * 2);
+                    current_state = 3;
+                    break;
+                case 3:
+                    current_block.get(0).setPosition(current_block.get(1).getX(), current_block.get(1).getY());
+                    current_block.get(1).setPosition(current_block.get(2).getX(), current_block.get(2).getY());
+                    current_block.get(2).setPosition(current_block.get(0).getX() + Info.SQUARE_WIDTH * 2, current_block.get(0).getY());
+                    current_state = 0;
+                    break;
+            }
         }
 
         if (Gdx.input.isKeyPressed(Input.Keys.DOWN)) {
