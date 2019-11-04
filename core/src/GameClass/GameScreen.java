@@ -15,6 +15,10 @@ import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.mygdx.game.Main;
 
+import java.util.ArrayList;
+
+import javax.lang.model.type.ArrayType;
+
 import Info.Info;
 
 public class GameScreen implements Screen {
@@ -25,7 +29,8 @@ public class GameScreen implements Screen {
     private Viewport viewport;
     private Array<Block> blocks;
     private Array<Block> current_block;
-    private float lowYPos, leftXPos, rightXPos;
+    private boolean deleted = false;
+    private int current_state;
 
     public GameScreen(Main main) {
         this.main = main;
@@ -62,57 +67,135 @@ public class GameScreen implements Screen {
         main.getBatch().end();
         camera.update();
         inputeHandler();
+        lineCheck();
+    }
+
+    private void lineCheck() {
+        ArrayList<Float> currentYs = new ArrayList<>();
+        for (Sprite sprite : blocks) {
+            if (!currentYs.contains(sprite.getY())) {
+                currentYs.add(sprite.getY());
+            }
+        }
+        for (Float currentY : currentYs) {
+            int count = 0;
+            for (Sprite sprite : blocks) {
+                if (sprite.getY() == currentY)
+                    count++;
+            }
+            if (count == 10) {
+                for (Block sprite : blocks) {
+                    if (sprite.getY() == currentY) {
+                        blocks.removeValue(sprite, false);
+                    }
+                }
+                for (Block sprite : blocks) {
+                    if (sprite.getY() == currentY) {
+                        blocks.removeValue(sprite, false);
+                    }
+                }
+                deleted = true;
+                for (Block sprite : blocks) {
+                    if (sprite.getY() > currentY) {
+                        sprite.setPosition(sprite.getX(),sprite.getY() - Info.SQUARE_WIDTH);
+                    }
+                }
+            } else deleted = false;
+        }
     }
 
     private void inputeHandler() {
 
         if (Gdx.input.isKeyJustPressed(Input.Keys.R)) {
-            blocks.addAll(current_block);
+            current_state = 0;
+            if (!deleted)
+                blocks.addAll(current_block);
+            System.out.println(blocks.size);
             current_block.clear();
-            current_block.add(new Block(240, Info.HEIGHT - 59, assetManager),
-                    new Block(240, Info.HEIGHT - 91, assetManager),
-                    new Block(208, Info.HEIGHT - 91, assetManager),
-                    new Block(272, Info.HEIGHT - 91, assetManager));
+            current_block.add(new Block(208, Info.TOP_EDGE_Y - Info.SQUARE_WIDTH * 2, assetManager),
+                    new Block(240, Info.TOP_EDGE_Y - Info.SQUARE_WIDTH, assetManager),
+                    new Block(272, Info.TOP_EDGE_Y - Info.SQUARE_WIDTH * 2, assetManager),
+                    new Block(240, Info.TOP_EDGE_Y - Info.SQUARE_WIDTH * 2, assetManager));
+        }
+
+        if (Gdx.input.isKeyJustPressed(Input.Keys.D)) {
+            switch (current_state) {
+                case 0:
+                    current_block.get(0).setPosition(current_block.get(1).getX(), current_block.get(1).getY());
+                    current_block.get(1).setPosition(current_block.get(2).getX(), current_block.get(2).getY());
+                    current_block.get(2).setPosition(current_block.get(0).getX(), current_block.get(0).getY() - Info.SQUARE_WIDTH * 2);
+                    current_state = 1;
+                    break;
+                case 1:
+                    current_block.get(0).setPosition(current_block.get(1).getX(), current_block.get(1).getY());
+                    current_block.get(1).setPosition(current_block.get(2).getX(), current_block.get(2).getY());
+                    current_block.get(2).setPosition(current_block.get(0).getX() - Info.SQUARE_WIDTH * 2, current_block.get(0).getY());
+                    current_state = 2;
+                    break;
+                case 2:
+                    current_block.get(0).setPosition(current_block.get(1).getX(), current_block.get(1).getY());
+                    current_block.get(1).setPosition(current_block.get(2).getX(), current_block.get(2).getY());
+                    current_block.get(2).setPosition(current_block.get(0).getX(), current_block.get(0).getY() + Info.SQUARE_WIDTH * 2);
+                    current_state = 3;
+                    break;
+                case 3:
+                    current_block.get(0).setPosition(current_block.get(1).getX(), current_block.get(1).getY());
+                    current_block.get(1).setPosition(current_block.get(2).getX(), current_block.get(2).getY());
+                    current_block.get(2).setPosition(current_block.get(0).getX() + Info.SQUARE_WIDTH * 2, current_block.get(0).getY());
+                    current_state = 0;
+                    break;
+            }
+        }
+
+        if (Gdx.input.isKeyJustPressed(Input.Keys.A)) {
+            if (!deleted)
+                blocks.addAll(current_block);
+            System.out.println(blocks.size);
+            current_block.clear();
+            current_block.add(new Block(240, Info.TOP_EDGE_Y - Info.SQUARE_WIDTH, assetManager),
+                    new Block(240, Info.TOP_EDGE_Y - Info.SQUARE_WIDTH * 2, assetManager),
+                    new Block(208, Info.TOP_EDGE_Y - Info.SQUARE_WIDTH * 2, assetManager),
+                    new Block(272, Info.TOP_EDGE_Y - Info.SQUARE_WIDTH * 2, assetManager));
         }
 
         if (Gdx.input.isKeyPressed(Input.Keys.DOWN)) {
             boolean clear = true;
             boolean equalX;
-            lowYPos = current_block.first().getY();
+            float lowYPos = current_block.first().getY();
             for (Sprite sprite: current_block) {
                 if (sprite.getY() < lowYPos)
                     lowYPos = sprite.getY();
             }
-            if (lowYPos > 134) {
+            if (lowYPos > Info.BOTTOM_EDGE_Y) {
                 for (Sprite sprite : blocks)
                     for (Sprite sprite1 : current_block) {
                         equalX = sprite.getX() == sprite1.getX();
-                        if ((sprite.getY() + sprite.getHeight() > sprite1.getY() - 31) && equalX)
+                        if ((sprite.getY() + sprite.getHeight() > sprite1.getY() - Info.SQUARE_WIDTH + 1) && equalX)
                             clear = false;
                     }
                 if (clear) for (Sprite sprite2 : current_block)
                     sprite2.setPosition(sprite2.getX(),
-                            sprite2.getY() - 32);
+                            sprite2.getY() - Info.SQUARE_WIDTH);
             }
         }
 
         if (Gdx.input.isKeyPressed(Input.Keys.LEFT)) {
             boolean clear = true;
             boolean equalY;
-            leftXPos = current_block.first().getX();
+            float leftXPos = current_block.first().getX();
             for (Sprite sprite: current_block) {
                 if (sprite.getX() < leftXPos)
                     leftXPos = sprite.getX();
             }
-            if (leftXPos > 80) {
+            if (leftXPos > Info.LEFT_EDGE_X) {
                 for (Sprite sprite : blocks)
                     for (Sprite sprite1 : current_block) {
                         equalY = sprite.getY() == sprite1.getY();
-                        if ((sprite.getX() == sprite1.getX() - 32) && equalY)
+                        if ((sprite.getX() == sprite1.getX() - Info.SQUARE_WIDTH) && equalY)
                             clear = false;
                     }
                 if (clear) for (Sprite sprite : current_block)
-                    sprite.setPosition(sprite.getX() - 32,
+                    sprite.setPosition(sprite.getX() - Info.SQUARE_WIDTH,
                             sprite.getY());
             }
         }
@@ -120,20 +203,20 @@ public class GameScreen implements Screen {
         if (Gdx.input.isKeyPressed(Input.Keys.RIGHT)) {
             boolean clear = true;
             boolean equalY;
-            rightXPos = current_block.first().getX() + current_block.first().getWidth();
+            float rightXPos = current_block.first().getX() + current_block.first().getWidth();
             for (Sprite sprite: current_block) {
                 if (sprite.getX() + sprite.getWidth() > rightXPos)
                     rightXPos = sprite.getX() + sprite.getWidth();
             }
-            if (rightXPos < 400) {
+            if (rightXPos < Info.RIGHT_EDGE_X) {
                 for (Sprite sprite : blocks)
                     for (Sprite sprite1 : current_block) {
                         equalY = sprite.getY() == sprite1.getY();
-                        if ((sprite.getX() == sprite1.getX() + 32) && equalY)
+                        if ((sprite.getX() == sprite1.getX() + Info.SQUARE_WIDTH) && equalY)
                             clear = false;
                     }
                 if (clear) for (Sprite sprite : current_block)
-                    sprite.setPosition(sprite.getX() + 32,
+                    sprite.setPosition(sprite.getX() + Info.SQUARE_WIDTH,
                             sprite.getY());
             }
         }
@@ -143,8 +226,6 @@ public class GameScreen implements Screen {
     public void resize(int width, int height) {
         viewport.update((int)Info.WIDTH,(int)Info.HEIGHT);
     }
-
-    //test commit
 
     @Override
     public void pause() {
