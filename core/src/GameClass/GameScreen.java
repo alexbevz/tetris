@@ -8,6 +8,7 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.Array;
@@ -57,8 +58,8 @@ public class GameScreen implements Screen {
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         main.getBatch().begin();
         main.getBatch().disableBlending();
-        main.getBatch().draw(assetManager.get("GameScreen/GameBackground.png", Texture.class),
-                0,0);
+        main.getBatch().draw(new TextureRegion(assetManager.get("GameScreen/GameBackground.png",
+                Texture.class)), 0, 0, Info.WIDTH, Info.HEIGHT);
         main.getBatch().enableBlending();
         for (Block block : blocks)
             main.getBatch().draw(block, block.getX(), block.getY());
@@ -112,10 +113,10 @@ public class GameScreen implements Screen {
                 blocks.addAll(current_block);
             System.out.println(blocks.size);
             current_block.clear();
-            current_block.add(new Block(208, Info.TOP_EDGE_Y - Info.SQUARE_WIDTH * 2, assetManager),
-                    new Block(240, Info.TOP_EDGE_Y - Info.SQUARE_WIDTH, assetManager),
-                    new Block(272, Info.TOP_EDGE_Y - Info.SQUARE_WIDTH * 2, assetManager),
-                    new Block(240, Info.TOP_EDGE_Y - Info.SQUARE_WIDTH * 2, assetManager));
+            current_block.add(new Block(Info.CENTER_X - Info.SQUARE_WIDTH, Info.TOP_EDGE_Y - Info.SQUARE_WIDTH * 2, assetManager),
+                    new Block(Info.CENTER_X, Info.TOP_EDGE_Y - Info.SQUARE_WIDTH, assetManager),
+                    new Block(Info.CENTER_X + Info.SQUARE_WIDTH, Info.TOP_EDGE_Y - Info.SQUARE_WIDTH * 2, assetManager),
+                    new Block(Info.CENTER_X, Info.TOP_EDGE_Y - Info.SQUARE_WIDTH * 2, assetManager));
         }
 
         if (Gdx.input.isKeyJustPressed(Input.Keys.D)) {  //rotate right-90
