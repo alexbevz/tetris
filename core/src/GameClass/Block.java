@@ -9,10 +9,10 @@ import Info.Info;
 
 class Block extends Sprite {
 
-    Block(float x, float y, AssetManager assetManager) {
-        super(assetManager.get("GameScreen/pOfT.png", Texture.class),
-                (int) Info.SQUARE_WIDTH, (int) Info.SQUARE_WIDTH);
+    Block(float x, float y, TextureRegion texture) {
+        super(texture);
         setPosition(x, y);
     }
 
 }
+
