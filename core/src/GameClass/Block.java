@@ -89,37 +89,141 @@ class Block extends Sprite {
                 new Block(Info.CENTER_X, Info.TOP_EDGE_Y - Info.SQ_W * 2, textureRegion));
     }
 
-    void randomTetromino(GameScreen gameScreen) {
+    void newTetromino(GameScreen gameScreen, int cf, int cs, Array<Block> cb) {
         AssetManager assetManager = gameScreen.getAssetManager();
-        int cf = gameScreen.getCf();
-        Array<Block> cb = gameScreen.getCb();
-        switch (cf) {
+        switch (cs) {
             case 0:
-                addT(cb, assetManager);
+                switch (cf) {
+                    case 0:
+                        addT(cb, assetManager);
+                        break;
+                    case 1:
+                        addO(cb, assetManager);
+                        break;
+                    case 2:
+                        addS(cb, assetManager);
+                        break;
+                    case 3:
+                        addZ(cb, assetManager);
+                        break;
+                    case 4:
+                        addL(cb, assetManager);
+                        break;
+                    case 5:
+                        addJ(cb, assetManager);
+                        break;
+                    case 6:
+                        addI(cb, assetManager);
+                        break;
+                }
                 break;
             case 1:
-                addO(cb, assetManager);
+                switch (cf) {
+                    case 0:
+                        addT(cb, assetManager);
+                        turnRight(gameScreen, cb, cf);
+                        break;
+                    case 1:
+                        addO(cb, assetManager);
+                        turnRight(gameScreen, cb, cf);
+                        break;
+                    case 2:
+                        addS(cb, assetManager);
+                        turnRight(gameScreen, cb, cf);
+                        break;
+                    case 3:
+                        addZ(cb, assetManager);
+                        turnRight(gameScreen, cb, cf);
+                        break;
+                    case 4:
+                        addL(cb, assetManager);
+                        turnRight(gameScreen, cb, cf);
+                        break;
+                    case 5:
+                        addJ(cb, assetManager);
+                        turnRight(gameScreen, cb, cf);
+                        break;
+                    case 6:
+                        addI(cb, assetManager);
+                        turnRight(gameScreen, cb, cf);
+                        break;
+                }
                 break;
             case 2:
-                addS(cb, assetManager);
+                switch (cf) {
+                    case 0:
+                        addT(cb, assetManager);
+                        turnRight(gameScreen, cb, cf);
+                        turnRight(gameScreen, cb, cf);
+                        break;
+                    case 1:
+                        addO(cb, assetManager);
+                        turnRight(gameScreen, cb, cf);
+                        turnRight(gameScreen, cb, cf);
+                        break;
+                    case 2:
+                        addS(cb, assetManager);
+                        turnRight(gameScreen, cb, cf);
+                        turnRight(gameScreen, cb, cf);
+                        break;
+                    case 3:
+                        addZ(cb, assetManager);
+                        turnRight(gameScreen, cb, cf);
+                        turnRight(gameScreen, cb, cf);
+                        break;
+                    case 4:
+                        addL(cb, assetManager);
+                        turnRight(gameScreen, cb, cf);
+                        turnRight(gameScreen, cb, cf);
+                        break;
+                    case 5:
+                        addJ(cb, assetManager);
+                        turnRight(gameScreen, cb, cf);
+                        turnRight(gameScreen, cb, cf);
+                        break;
+                    case 6:
+                        addI(cb, assetManager);
+                        turnRight(gameScreen, cb, cf);
+                        turnRight(gameScreen, cb, cf);
+                        break;
+                }
                 break;
             case 3:
-                addZ(cb, assetManager);
-                break;
-            case 4:
-                addL(cb, assetManager);
-                break;
-            case 5:
-                addJ(cb, assetManager);
-                break;
-            case 6:
-                addI(cb, assetManager);
+                switch (cf) {
+                    case 0:
+                        addT(cb, assetManager);
+                        turnLeft(gameScreen, cb, cf);
+                        break;
+                    case 1:
+                        addO(cb, assetManager);
+                        turnLeft(gameScreen, cb, cf);
+                        break;
+                    case 2:
+                        addS(cb, assetManager);
+                        turnLeft(gameScreen, cb, cf);
+                        break;
+                    case 3:
+                        addZ(cb, assetManager);
+                        turnLeft(gameScreen, cb, cf);
+                        break;
+                    case 4:
+                        addL(cb, assetManager);
+                        turnLeft(gameScreen, cb, cf);
+                        break;
+                    case 5:
+                        addJ(cb, assetManager);
+                        turnLeft(gameScreen, cb, cf);
+                        break;
+                    case 6:
+                        addI(cb, assetManager);
+                        turnLeft(gameScreen, cb, cf);
+                        break;
+                }
                 break;
         }
     }
 
-    void turnRight(GameScreen gameScreen, Array<Block> cb) {
-        int cf = gameScreen.getCf();
+    void turnRight(GameScreen gameScreen, Array<Block> cb, int cf) {
         int cs = gameScreen.getCs();
         switch (cf) {
             case 0:
@@ -266,8 +370,7 @@ class Block extends Sprite {
         }
     }
 
-    void turnLeft(GameScreen gameScreen, Array<Block> cb) {
-        int cf = gameScreen.getCf();
+    void turnLeft(GameScreen gameScreen, Array<Block> cb, int cf) {
         int cs = gameScreen.getCs();
         switch (cf) {
             case 0:

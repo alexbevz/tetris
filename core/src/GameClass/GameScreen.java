@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.Random;
 
 import Info.Info;
+import Info.myStats;
 
 public class GameScreen implements Screen {
 
@@ -27,15 +28,15 @@ public class GameScreen implements Screen {
     private OrthographicCamera camera;
     private Viewport viewport;
 
-    private Array<Block> blocks;
+    private Array<Block> blocks, nextBlock;
 
     private Array<Block> cb;  //current block
 
     private int cs, cf;  //current state, current figure
+    private int csNext = -1, cfNext = -1;
 
     private Block b; //block
     private Timer timer;
-    private float lowYPos;
 
     private boolean falling;
 
@@ -48,6 +49,7 @@ public class GameScreen implements Screen {
         timer = new Timer();
         b = new Block();
         blocks = new Array<>();
+        nextBlock = new Array<>();
         cb = new Array<>();
         camera = new OrthographicCamera(Info.WIDTH,Info.HEIGHT);
         viewport = new FitViewport(Info.WIDTH,Info.HEIGHT, camera);
@@ -66,6 +68,8 @@ public class GameScreen implements Screen {
             main.getBatch().draw(block, block.getX(), block.getY());
         for (Block block : cb)
             main.getBatch().draw(block, block.getX(), block.getY());
+        for (Block block : nextBlock)
+            main.getBatch().draw(block, block.getX(), block.getY());
         main.getBatch().end();
         camera.update();
         inputeHandler();
@@ -80,32 +84,44 @@ public class GameScreen implements Screen {
                     checkBottomClear();
                     fallingFigures();
                 }
-            }, 6 / Info.FRAMES_PER_SECOND);
+            }, myStats.getCurrentSpeed() / Info.FRAMES_PER_SECOND);
         else {
             timer.clear();
             timer.scheduleTask(new Timer.Task() {
                @Override
                public void run() {
-                   createOneTetromino();
+                   createRandomTetromino();
                }
            }, 14 / Info.FRAMES_PER_SECOND);
         }
     }
 
+
     private void inputeHandler() {
 
         if (Gdx.input.isKeyJustPressed(Input.Keys.R)) {
-            createOneTetromino();
+            blocks.clear();
+            cb.clear();
+            createRandomTetromino();
+        }
+
+        if (Gdx.input.isKeyJustPressed(Input.Keys.Q)) {
+            myStats.setCurrentSpeed(myStats.getCurrentSpeed() - 2);
+            System.out.println(myStats.getCurrentSpeed());
+        }
+
+        if (Gdx.input.isKeyJustPressed(Input.Keys.E)) {
+            myStats.setCurrentSpeed(myStats.getCurrentSpeed() + 2);
         }
 
         if (Gdx.input.isKeyJustPressed(Input.Keys.A)) {
             if (rotationAvailable())
-                b.turnLeft(this, cb);
+                b.turnLeft(this, cb, cf);
         }
 
         if (Gdx.input.isKeyJustPressed(Input.Keys.D)) {
             if (rotationAvailable()) {
-                b.turnRight(this, cb);
+                b.turnRight(this, cb, cf);
             }
         }
 
@@ -122,15 +138,41 @@ public class GameScreen implements Screen {
         }
     }
 
-    private void createOneTetromino() {
+    private void createRandomTetromino() {
         Random rand = new Random();
-        cf = rand.nextInt(7);
-        cs = 0;
-        blocks.addAll(cb);
-        cb.clear();
-        b.randomTetromino(this);
-        falling = true;
-        fallingFigures();
+        if (csNext == -1) {
+            cf = rand.nextInt(7);
+            int currentS = rand.nextInt(4);
+            cs = 0;
+            blocks.addAll(cb);
+            cb.clear();
+            b.newTetromino(this, cf, currentS, cb);
+            falling = true;
+            fallingFigures();
+        }
+        else {
+            cf = cfNext;
+            int currentS = csNext;
+            cs = 0;
+            blocks.addAll(cb);
+            cb.clear();
+            b.newTetromino(this, cf, currentS, cb);
+            falling = true;
+            fallingFigures();
+        }
+        cfNext = rand.nextInt(7);
+        csNext = rand.nextInt(4);
+        showNextTetromino(cfNext, csNext);
+    }
+
+    private void showNextTetromino(int cf, int cs) {
+        nextBlock.clear();
+        int start = this.cs;
+        this.cs = 0;
+        b.newTetromino(this, cf, cs, nextBlock);
+        this.cs = start;
+        for (Block block : nextBlock)
+            block.setPosition(block.getX() + 200, block.getY() - 40);
     }
 
     private void lineCheck() {
@@ -167,7 +209,7 @@ public class GameScreen implements Screen {
         Array<Block> copy = new Array<>();
         copy.clear();
         copy.addAll(cb);
-        b.turnLeft(this, copy);
+        b.turnLeft(this, copy, cf);
         for (Block block : copy) {
             if (block.getX() < Info.LEFT_EDGE_X || block.getX() >= Info.RIGHT_EDGE_X ||
             block.getY() < Info.BOTTOM_EDGE_Y) {
@@ -180,7 +222,7 @@ public class GameScreen implements Screen {
         }
         copy.clear();
         copy.addAll(cb);
-        b.turnRight(this, copy);
+        b.turnRight(this, copy, cf);
         for (Block block : copy) {
             if (block.getX() < Info.LEFT_EDGE_X || block.getX() >= Info.RIGHT_EDGE_X ||
                     block.getY() < Info.BOTTOM_EDGE_Y) {
@@ -240,7 +282,7 @@ public class GameScreen implements Screen {
 
     private void checkBottomClear() {
         boolean clear = true, equalX;
-        lowYPos = cb.first().getY();
+        float lowYPos = cb.first().getY();
         for (Sprite sprite2: cb) {
             if (sprite2.getY() < lowYPos)
                 lowYPos = sprite2.getY();
