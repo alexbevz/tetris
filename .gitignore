@@ -14,6 +14,10 @@ bin/
 gen/
 out/
 
+# Info Interface and DesktopLauncher
+core/src/Info/Info.java
+desktop/src/com/mygdx/game/desktop/DesktopLauncher.java
+
 # Gradle files
 .gradle/
 build/
