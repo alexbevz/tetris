@@ -368,6 +368,7 @@ class Block extends Sprite {
                 }
                 break;
         }
+        gameScreen.setFalling(true);
     }
 
     void turnLeft(GameScreen gameScreen, Array<Block> cb, int cf) {
@@ -515,7 +516,7 @@ class Block extends Sprite {
                 }
                 break;
         }
+        gameScreen.setFalling(true);
     }
-
 }
 
