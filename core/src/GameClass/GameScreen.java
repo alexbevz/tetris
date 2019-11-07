@@ -36,22 +36,17 @@ public class GameScreen implements Screen {
     private int csNext = -1, cfNext = -1;
 
     private Block b; //block
-    private Timer timer, timer2;
+    private Timer timer;
 
     private boolean falling;
-    private boolean downPressed;
-    private boolean justCreated;
 
     public GameScreen(Main main) {
         this.main = main;
         assetManager = main.getAssetManager();
     }
-
     @Override
     public void show() {
-        downPressed = false;
         timer = new Timer();
-        timer2 = new Timer();
         b = new Block();
         blocks = new Array<>();
         nextBlock = new Array<>();
@@ -59,6 +54,7 @@ public class GameScreen implements Screen {
         camera = new OrthographicCamera(Info.WIDTH,Info.HEIGHT);
         viewport = new FitViewport(Info.WIDTH,Info.HEIGHT, camera);
     }
+
     @Override
     public void render(float delta) {
         Gdx.gl.glClearColor(1, 0, 0, 1);
@@ -81,132 +77,64 @@ public class GameScreen implements Screen {
     }
 
     private void fallingFigures() {
-        if (!justCreated)
-            downPressed = Gdx.input.isKeyPressed(Input.Keys.DOWN);
-        else downPressed = false;
-        if (falling && !downPressed) {
-            if (!justCreated)
-                checkBottomClear();
+        if (falling)
             timer.scheduleTask(new Timer.Task() {
                 @Override
                 public void run() {
-                    justCreated = false;
+                    checkBottomClear();
                     fallingFigures();
                 }
             }, myStats.getCurrentSpeed() / Info.FRAMES_PER_SECOND);
-        }
-        else if (falling) {
-            timer.clear();
-            checkBottomClear();
-            timer.scheduleTask(new Timer.Task() {
-                @Override
-                public void run() {
-                    justCreated = false;
-                    fallingFigures();
-                }
-            }, 2 / Info.FRAMES_PER_SECOND);
-        }
         else {
             timer.clear();
             timer.scheduleTask(new Timer.Task() {
                @Override
                public void run() {
-                   justCreated = true;
                    createRandomTetromino();
                }
            }, 14 / Info.FRAMES_PER_SECOND);
         }
     }
 
-    private void movingFaster() {
-        if (Gdx.input.isKeyPressed(Input.Keys.LEFT)) {
-            checkLeftClear();
-            timer2.clear();
-            timer2.scheduleTask(new Timer.Task() {
-                @Override
-                public void run() {
-                    movingFaster();
-                }
-            }, 6 / Info.FRAMES_PER_SECOND);
-        }
-        if (Gdx.input.isKeyPressed(Input.Keys.RIGHT)) {
-            checkRightClear();
-            timer2.clear();
-            timer2.scheduleTask(new Timer.Task() {
-                @Override
-                public void run() {
-                    movingFaster();
-                }
-            }, 6 / Info.FRAMES_PER_SECOND);
-        }
-    }
-
-    private void movingFigure() {
-        if (Gdx.input.isKeyPressed(Input.Keys.LEFT)) {
-            checkLeftClear();
-            timer2.clear();
-            timer2.scheduleTask(new Timer.Task() {
-                @Override
-                public void run() {
-                    movingFaster();
-                }
-            }, 16 / Info.FRAMES_PER_SECOND);
-        }
-        if (Gdx.input.isKeyPressed(Input.Keys.RIGHT)) {
-            checkRightClear();
-            timer2.clear();
-            timer2.scheduleTask(new Timer.Task() {
-                @Override
-                public void run() {
-                    movingFaster();
-                }
-            }, 16 / Info.FRAMES_PER_SECOND);
-        }
-    }
 
     private void inputeHandler() {
 
         if (Gdx.input.isKeyJustPressed(Input.Keys.R)) {
             blocks.clear();
             cb.clear();
-            justCreated = true;
             createRandomTetromino();
         }
 
         if (Gdx.input.isKeyJustPressed(Input.Keys.Q)) {
-            myStats.setCurrentSpeed(myStats.getCurrentSpeed() - 1);
+            myStats.setCurrentSpeed(myStats.getCurrentSpeed() - 2);
             System.out.println(myStats.getCurrentSpeed());
         }
 
         if (Gdx.input.isKeyJustPressed(Input.Keys.E)) {
-            myStats.setCurrentSpeed(myStats.getCurrentSpeed() + 1);
+            myStats.setCurrentSpeed(myStats.getCurrentSpeed() + 2);
         }
 
         if (Gdx.input.isKeyJustPressed(Input.Keys.A)) {
-            if (rotationAvailable()) {
+            if (rotationAvailable())
                 b.turnLeft(this, cb, cf);
-                falling = true;
-            }
         }
 
         if (Gdx.input.isKeyJustPressed(Input.Keys.D)) {
             if (rotationAvailable()) {
                 b.turnRight(this, cb, cf);
-                falling = true;
             }
         }
 
-        if (Gdx.input.isKeyJustPressed(Input.Keys.DOWN)) {
-            timer.clear();
-            fallingFigures();
+        if (Gdx.input.isKeyPressed(Input.Keys.DOWN)) {
+            checkBottomClear();
         }
 
         if (Gdx.input.isKeyJustPressed(Input.Keys.LEFT)) {
-            movingFigure();
+            checkLeftClear();
         }
 
         if (Gdx.input.isKeyJustPressed(Input.Keys.RIGHT)) {
-            movingFigure();
+            checkRightClear();
         }
     }
 
@@ -418,10 +346,6 @@ public class GameScreen implements Screen {
 
     int getCf() {
         return cf;
-    }
-
-    void setFalling(boolean falling) {
-        this.falling = falling;
     }
 
     AssetManager getAssetManager() {
