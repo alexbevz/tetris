@@ -28,7 +28,7 @@ public class GameScreen implements Screen {
     private OrthographicCamera camera;
     private Viewport viewport;
 
-    private Array<Block> blocks, nextBlock;
+    private Array<Block> blocks;
 
     private Array<Block> cb;  //current block
 
@@ -42,6 +42,8 @@ public class GameScreen implements Screen {
     private boolean downPressed;
     private boolean justCreated;
 
+    private Texture nextFigure;
+
     public GameScreen(Main main) {
         this.main = main;
         assetManager = main.getAssetManager();
@@ -54,7 +56,6 @@ public class GameScreen implements Screen {
         timer2 = new Timer();
         b = new Block();
         blocks = new Array<>();
-        nextBlock = new Array<>();
         cb = new Array<>();
         camera = new OrthographicCamera(Info.WIDTH,Info.HEIGHT);
         viewport = new FitViewport(Info.WIDTH,Info.HEIGHT, camera);
@@ -72,8 +73,8 @@ public class GameScreen implements Screen {
             main.getBatch().draw(block, block.getX(), block.getY());
         for (Block block : cb)
             main.getBatch().draw(block, block.getX(), block.getY());
-        for (Block block : nextBlock)
-            main.getBatch().draw(block, block.getX(), block.getY());
+        if (nextFigure != null)
+            main.getBatch().draw(nextFigure, Info.NEXTFIGURE_BL_X, Info.NEXTFIGURE_BL_Y);
         main.getBatch().end();
         camera.update();
         inputeHandler();
@@ -238,13 +239,8 @@ public class GameScreen implements Screen {
     }
 
     private void showNextTetromino(int cf, int cs) {
-        nextBlock.clear();
-        int start = this.cs;
-        this.cs = 0;
-        b.newTetromino(this, cf, cs, nextBlock);
-        this.cs = start;
-        for (Block block : nextBlock)
-            block.setPosition(block.getX() + 200, block.getY() - 40);
+        nextFigure = assetManager.get("GameScreen/Pieces/" + cf + "_" + cs + ".png", Texture.class);
+
     }
 
     private void lineCheck() {
@@ -427,4 +423,5 @@ public class GameScreen implements Screen {
     AssetManager getAssetManager() {
         return assetManager;
     }
+
 }

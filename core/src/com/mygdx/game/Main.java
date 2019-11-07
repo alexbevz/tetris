@@ -25,6 +25,36 @@ public class Main extends Game {
 		assetManager.load("GameScreen/pOfS.png", Texture.class);
 		assetManager.load("GameScreen/pOfT.png", Texture.class);
 		assetManager.load("GameScreen/pOfZ.png", Texture.class);
+
+		assetManager.load("GameScreen/Pieces/0_0.png", Texture.class);
+		assetManager.load("GameScreen/Pieces/0_1.png", Texture.class);
+		assetManager.load("GameScreen/Pieces/0_2.png", Texture.class);
+		assetManager.load("GameScreen/Pieces/0_3.png", Texture.class);
+		assetManager.load("GameScreen/Pieces/1_0.png", Texture.class);
+		assetManager.load("GameScreen/Pieces/1_1.png", Texture.class);
+		assetManager.load("GameScreen/Pieces/1_2.png", Texture.class);
+		assetManager.load("GameScreen/Pieces/1_3.png", Texture.class);
+		assetManager.load("GameScreen/Pieces/2_0.png", Texture.class);
+		assetManager.load("GameScreen/Pieces/2_1.png", Texture.class);
+		assetManager.load("GameScreen/Pieces/2_2.png", Texture.class);
+		assetManager.load("GameScreen/Pieces/2_3.png", Texture.class);
+		assetManager.load("GameScreen/Pieces/3_0.png", Texture.class);
+		assetManager.load("GameScreen/Pieces/3_1.png", Texture.class);
+		assetManager.load("GameScreen/Pieces/3_2.png", Texture.class);
+		assetManager.load("GameScreen/Pieces/3_3.png", Texture.class);
+		assetManager.load("GameScreen/Pieces/4_0.png", Texture.class);
+		assetManager.load("GameScreen/Pieces/4_1.png", Texture.class);
+		assetManager.load("GameScreen/Pieces/4_2.png", Texture.class);
+		assetManager.load("GameScreen/Pieces/4_3.png", Texture.class);
+		assetManager.load("GameScreen/Pieces/5_0.png", Texture.class);
+		assetManager.load("GameScreen/Pieces/5_1.png", Texture.class);
+		assetManager.load("GameScreen/Pieces/5_2.png", Texture.class);
+		assetManager.load("GameScreen/Pieces/5_3.png", Texture.class);
+		assetManager.load("GameScreen/Pieces/6_0.png", Texture.class);
+		assetManager.load("GameScreen/Pieces/6_1.png", Texture.class);
+		assetManager.load("GameScreen/Pieces/6_2.png", Texture.class);
+		assetManager.load("GameScreen/Pieces/6_3.png", Texture.class);
+
 		assetManager.finishLoading();
 		setScreen(new GameScreen(this));
 	}
