@@ -20,7 +20,7 @@ desktop/src/com/mygdx/game/desktop/DesktopLauncher.java
 
 # Gradle files
 .gradle/
-gradle.properties
+gradle/wrapper/gradle-wrapper.properties
 build/
 
 # Local configuration file (sdk path, etc)
