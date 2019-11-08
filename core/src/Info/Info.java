@@ -1,10 +1,8 @@
 package Info;
 
-import com.badlogic.gdx.Gdx;
-
 public interface Info {
-    float WIDTH = Gdx.graphics.getWidth();
-    float HEIGHT = Gdx.graphics.getHeight();
+    float WIDTH = 480;
+    float HEIGHT = 800;
     float RIGHT_EDGE_X = 319;
     float LEFT_EDGE_X = 19;
     float BOTTOM_EDGE_Y = 180;

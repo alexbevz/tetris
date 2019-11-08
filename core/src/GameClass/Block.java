@@ -19,74 +19,76 @@ class Block extends Sprite {
         setPosition(x, y);
     }
 
+
+
     private void addI(Array<Block> current_block, AssetManager assetManager) {
-        TextureRegion textureRegion = new TextureRegion(assetManager.get("GameScreen/pOfI.png",
-                Texture.class), (int) Info.SQ_W, (int) Info.SQ_W);
-        current_block.add(
-                new Block(Info.CENTER_X  - Info.SQ_W, Info.TOP_EDGE_Y - Info.SQ_W * 2, textureRegion),
-                new Block(Info.CENTER_X, Info.TOP_EDGE_Y - Info.SQ_W * 2, textureRegion),
-                new Block(Info.CENTER_X + Info.SQ_W, Info.TOP_EDGE_Y - Info.SQ_W * 2, textureRegion),
-                new Block(Info.CENTER_X + Info.SQ_W * 2, Info.TOP_EDGE_Y - Info.SQ_W * 2, textureRegion));
+            TextureRegion textureRegion = new TextureRegion(assetManager.get("GameScreen/pOfI.png",
+                    Texture.class), (int) Info.SQ_W, (int) Info.SQ_W);
+            current_block.add(
+                    new Block(Info.CENTER_X - Info.SQ_W, Info.TOP_EDGE_Y - Info.SQ_W * 2, textureRegion),
+                    new Block(Info.CENTER_X, Info.TOP_EDGE_Y - Info.SQ_W * 2, textureRegion),
+                    new Block(Info.CENTER_X + Info.SQ_W, Info.TOP_EDGE_Y - Info.SQ_W * 2, textureRegion),
+                    new Block(Info.CENTER_X + Info.SQ_W * 2, Info.TOP_EDGE_Y - Info.SQ_W * 2, textureRegion));
     }
 
     private void addJ(Array<Block> current_block, AssetManager assetManager) {
-        TextureRegion textureRegion = new TextureRegion(assetManager.get("GameScreen/pOfJ.png",
-                Texture.class), (int) Info.SQ_W, (int) Info.SQ_W);
-        current_block.add(
-                new Block(Info.CENTER_X  - Info.SQ_W, Info.TOP_EDGE_Y - Info.SQ_W, textureRegion),
-                new Block(Info.CENTER_X, Info.TOP_EDGE_Y - Info.SQ_W, textureRegion),
-                new Block(Info.CENTER_X + Info.SQ_W, Info.TOP_EDGE_Y - Info.SQ_W, textureRegion),
-                new Block(Info.CENTER_X + Info.SQ_W, Info.TOP_EDGE_Y - Info.SQ_W * 2, textureRegion));
+            TextureRegion textureRegion = new TextureRegion(assetManager.get("GameScreen/pOfJ.png",
+                    Texture.class), (int) Info.SQ_W, (int) Info.SQ_W);
+            current_block.add(
+                    new Block(Info.CENTER_X - Info.SQ_W, Info.TOP_EDGE_Y - Info.SQ_W, textureRegion),
+                    new Block(Info.CENTER_X, Info.TOP_EDGE_Y - Info.SQ_W, textureRegion),
+                    new Block(Info.CENTER_X + Info.SQ_W, Info.TOP_EDGE_Y - Info.SQ_W, textureRegion),
+                    new Block(Info.CENTER_X + Info.SQ_W, Info.TOP_EDGE_Y - Info.SQ_W * 2, textureRegion));
     }
 
     private void addL(Array<Block> current_block, AssetManager assetManager) {
-        TextureRegion textureRegion = new TextureRegion(assetManager.get("GameScreen/pOfL.png",
-                Texture.class), (int) Info.SQ_W, (int) Info.SQ_W);
-        current_block.add(
-                new Block(Info.CENTER_X - Info.SQ_W, Info.TOP_EDGE_Y - Info.SQ_W * 2, textureRegion),
-                new Block(Info.CENTER_X  - Info.SQ_W, Info.TOP_EDGE_Y - Info.SQ_W, textureRegion),
-                new Block(Info.CENTER_X, Info.TOP_EDGE_Y - Info.SQ_W, textureRegion),
-                new Block(Info.CENTER_X + Info.SQ_W, Info.TOP_EDGE_Y  - Info.SQ_W, textureRegion));
+            TextureRegion textureRegion = new TextureRegion(assetManager.get("GameScreen/pOfL.png",
+                    Texture.class), (int) Info.SQ_W, (int) Info.SQ_W);
+            current_block.add(
+                    new Block(Info.CENTER_X - Info.SQ_W, Info.TOP_EDGE_Y - Info.SQ_W * 2, textureRegion),
+                    new Block(Info.CENTER_X - Info.SQ_W, Info.TOP_EDGE_Y - Info.SQ_W, textureRegion),
+                    new Block(Info.CENTER_X, Info.TOP_EDGE_Y - Info.SQ_W, textureRegion),
+                    new Block(Info.CENTER_X + Info.SQ_W, Info.TOP_EDGE_Y - Info.SQ_W, textureRegion));
     }
 
     private void addZ(Array<Block> current_block, AssetManager assetManager) {
-        TextureRegion textureRegion = new TextureRegion(assetManager.get("GameScreen/pOfZ.png",
-                Texture.class), (int) Info.SQ_W, (int) Info.SQ_W);
-        current_block.add(
-                new Block(Info.CENTER_X - Info.SQ_W, Info.TOP_EDGE_Y - Info.SQ_W, textureRegion),
-                new Block(Info.CENTER_X, Info.TOP_EDGE_Y - Info.SQ_W, textureRegion),
-                new Block(Info.CENTER_X, Info.TOP_EDGE_Y - Info.SQ_W * 2, textureRegion),
-                new Block(Info.CENTER_X + Info.SQ_W, Info.TOP_EDGE_Y - Info.SQ_W * 2, textureRegion));
+            TextureRegion textureRegion = new TextureRegion(assetManager.get("GameScreen/pOfZ.png",
+                    Texture.class), (int) Info.SQ_W, (int) Info.SQ_W);
+            current_block.add(
+                    new Block(Info.CENTER_X - Info.SQ_W, Info.TOP_EDGE_Y - Info.SQ_W, textureRegion),
+                    new Block(Info.CENTER_X, Info.TOP_EDGE_Y - Info.SQ_W, textureRegion),
+                    new Block(Info.CENTER_X, Info.TOP_EDGE_Y - Info.SQ_W * 2, textureRegion),
+                    new Block(Info.CENTER_X + Info.SQ_W, Info.TOP_EDGE_Y - Info.SQ_W * 2, textureRegion));
     }
 
     private void addS(Array<Block> current_block, AssetManager assetManager) {
-        TextureRegion textureRegion = new TextureRegion(assetManager.get("GameScreen/pOfS.png",
-                Texture.class), (int) Info.SQ_W, (int) Info.SQ_W);
-        current_block.add(
-                new Block(Info.CENTER_X - Info.SQ_W, Info.TOP_EDGE_Y - Info.SQ_W * 2, textureRegion),
-                new Block(Info.CENTER_X, Info.TOP_EDGE_Y - Info.SQ_W * 2, textureRegion),
-                new Block(Info.CENTER_X, Info.TOP_EDGE_Y - Info.SQ_W, textureRegion),
-                new Block(Info.CENTER_X + Info.SQ_W, Info.TOP_EDGE_Y - Info.SQ_W, textureRegion));
+            TextureRegion textureRegion = new TextureRegion(assetManager.get("GameScreen/pOfS.png",
+                    Texture.class), (int) Info.SQ_W, (int) Info.SQ_W);
+            current_block.add(
+                    new Block(Info.CENTER_X - Info.SQ_W, Info.TOP_EDGE_Y - Info.SQ_W * 2, textureRegion),
+                    new Block(Info.CENTER_X, Info.TOP_EDGE_Y - Info.SQ_W * 2, textureRegion),
+                    new Block(Info.CENTER_X, Info.TOP_EDGE_Y - Info.SQ_W, textureRegion),
+                    new Block(Info.CENTER_X + Info.SQ_W, Info.TOP_EDGE_Y - Info.SQ_W, textureRegion));
     }
 
     private void addO(Array<Block> current_block, AssetManager assetManager) {
-        TextureRegion textureRegion = new TextureRegion(assetManager.get("GameScreen/pOfO.png",
-                Texture.class), (int) Info.SQ_W, (int) Info.SQ_W);
-        current_block.add(
-                new Block(Info.CENTER_X - Info.SQ_W, Info.TOP_EDGE_Y - Info.SQ_W * 2, textureRegion),
-                new Block(Info.CENTER_X - Info.SQ_W, Info.TOP_EDGE_Y - Info.SQ_W, textureRegion),
-                new Block(Info.CENTER_X, Info.TOP_EDGE_Y - Info.SQ_W, textureRegion),
-                new Block(Info.CENTER_X, Info.TOP_EDGE_Y - Info.SQ_W * 2, textureRegion));
+            TextureRegion textureRegion = new TextureRegion(assetManager.get("GameScreen/pOfO.png",
+                    Texture.class), (int) Info.SQ_W, (int) Info.SQ_W);
+            current_block.add(
+                    new Block(Info.CENTER_X - Info.SQ_W, Info.TOP_EDGE_Y - Info.SQ_W * 2, textureRegion),
+                    new Block(Info.CENTER_X - Info.SQ_W, Info.TOP_EDGE_Y - Info.SQ_W, textureRegion),
+                    new Block(Info.CENTER_X, Info.TOP_EDGE_Y - Info.SQ_W, textureRegion),
+                    new Block(Info.CENTER_X, Info.TOP_EDGE_Y - Info.SQ_W * 2, textureRegion));
     }
 
     private void addT(Array<Block> current_block, AssetManager assetManager) {
-        TextureRegion textureRegion = new TextureRegion(assetManager.get("GameScreen/pOfT.png",
-                Texture.class), (int) Info.SQ_W, (int) Info.SQ_W);
-        current_block.add(
-                new Block(Info.CENTER_X - Info.SQ_W, Info.TOP_EDGE_Y - Info.SQ_W * 2, textureRegion),
-                new Block(Info.CENTER_X, Info.TOP_EDGE_Y - Info.SQ_W, textureRegion),
-                new Block(Info.CENTER_X + Info.SQ_W, Info.TOP_EDGE_Y - Info.SQ_W * 2, textureRegion),
-                new Block(Info.CENTER_X, Info.TOP_EDGE_Y - Info.SQ_W * 2, textureRegion));
+            TextureRegion textureRegion = new TextureRegion(assetManager.get("GameScreen/pOfT.png",
+                    Texture.class), (int) Info.SQ_W, (int) Info.SQ_W);
+            current_block.add(
+                    new Block(Info.CENTER_X - Info.SQ_W, Info.TOP_EDGE_Y - Info.SQ_W * 2, textureRegion),
+                    new Block(Info.CENTER_X, Info.TOP_EDGE_Y - Info.SQ_W, textureRegion),
+                    new Block(Info.CENTER_X + Info.SQ_W, Info.TOP_EDGE_Y - Info.SQ_W * 2, textureRegion),
+                    new Block(Info.CENTER_X, Info.TOP_EDGE_Y - Info.SQ_W * 2, textureRegion));
     }
 
     void newTetromino(GameScreen gameScreen, int cf, int cs, Array<Block> cb) {
@@ -368,7 +370,6 @@ class Block extends Sprite {
                 }
                 break;
         }
-        gameScreen.setFalling(true);
     }
 
     void turnLeft(GameScreen gameScreen, Array<Block> cb, int cf) {
@@ -516,7 +517,6 @@ class Block extends Sprite {
                 }
                 break;
         }
-        gameScreen.setFalling(true);
     }
 }
 

@@ -2,6 +2,7 @@ package GameClass;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
+import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.GL20;
@@ -9,14 +10,26 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.physics.box2d.World;
+import com.badlogic.gdx.scenes.scene2d.Actor;
+import com.badlogic.gdx.scenes.scene2d.InputEvent;
+import com.badlogic.gdx.scenes.scene2d.InputListener;
+import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.Touchable;
+import com.badlogic.gdx.scenes.scene2d.actions.TouchableAction;
+import com.badlogic.gdx.scenes.scene2d.ui.Button;
+import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Timer;
 import com.badlogic.gdx.utils.viewport.FitViewport;
+import com.badlogic.gdx.utils.viewport.StretchViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.mygdx.game.Main;
 
 import java.util.ArrayList;
 import java.util.Random;
+
+import javax.swing.GrayFilter;
 
 import Info.Info;
 import Info.myStats;
@@ -41,6 +54,11 @@ public class GameScreen implements Screen {
     private boolean falling;
     private boolean downPressed;
     private boolean justCreated;
+    private boolean leftReleased = true, rightReleased = true, downReleased = true;
+
+    private int currentPointer;
+
+    private Stage stage;
 
     private Texture nextFigure;
 
@@ -57,12 +75,16 @@ public class GameScreen implements Screen {
         b = new Block();
         blocks = new Array<>();
         cb = new Array<>();
-        camera = new OrthographicCamera(Info.WIDTH,Info.HEIGHT);
-        viewport = new FitViewport(Info.WIDTH,Info.HEIGHT, camera);
+        camera = new OrthographicCamera(Info.WIDTH, Info.HEIGHT);
+        camera.position.set(Info.WIDTH / 2,Info.HEIGHT / 2, 0);
+        viewport = new FitViewport(Gdx.graphics.getWidth(), Gdx.graphics.getWidth() * 1.7777f);
+        stage = new Stage(viewport, main.getBatch());
+        buttonsActivate();
+        Gdx.input.setInputProcessor(stage);
     }
     @Override
     public void render(float delta) {
-        Gdx.gl.glClearColor(1, 0, 0, 1);
+        Gdx.gl.glClearColor(0, 0, 0, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         main.getBatch().begin();
         main.getBatch().disableBlending();
@@ -73,19 +95,178 @@ public class GameScreen implements Screen {
             main.getBatch().draw(block, block.getX(), block.getY());
         for (Block block : cb)
             main.getBatch().draw(block, block.getX(), block.getY());
-        if (nextFigure != null)
+        if (nextFigure != null) {
             main.getBatch().draw(nextFigure, Info.NEXTFIGURE_BL_X, Info.NEXTFIGURE_BL_Y);
+        }
         main.getBatch().end();
+        main.getBatch().setProjectionMatrix(camera.combined);
         camera.update();
         inputeHandler();
         lineCheck();
+        if (Gdx.input.isTouched(currentPointer)) {
+            if (Gdx.input.getY() < 730 && Gdx.input.getY() > 620) {
+                if (Gdx.input.getX() > 18 && Gdx.input.getX() < 260) {
+                    if (Gdx.input.getX() > 135) {
+                        leftReleased = true;
+                        rightReleased = false;
+                        downReleased = true;
+                    } else {
+                        leftReleased = false;
+                        rightReleased = true;
+                        downReleased = true;
+                    }
+                }
+            }
+            else if (Gdx.input.getY() > 730 && Gdx.input.getX() > 18 && Gdx.input.getX() < 260) {
+                leftReleased = true;
+                rightReleased = true;
+                downReleased = false;
+            }
+        }
+    }
+
+    private void buttonsActivate() {
+        Button leftButton = new Button();
+        Button rightButton = new Button();
+        Button downButton = new Button();
+        Button increaseButton = new Button();
+        Button decreaseButton = new Button();
+        Button rotateLButton = new Button();
+        Button rotateRButton = new Button();
+        leftButton.setPosition(18, 74);
+        leftButton.setHeight(100);
+        leftButton.setWidth(110);
+        rightButton.setPosition(148, 74);
+        rightButton.setHeight(100);
+        rightButton.setWidth(110);
+        downButton.setPosition(72, 8);
+        downButton.setHeight(58);
+        downButton.setWidth(135);
+        increaseButton.setPosition(404, 454);
+        increaseButton.setHeight(56);
+        increaseButton.setWidth(56);
+        decreaseButton.setPosition(341, 454);
+        decreaseButton.setHeight(56);
+        decreaseButton.setWidth(56);
+        rotateLButton.setPosition(283, 6);
+        rotateLButton.setHeight(98);
+        rotateLButton.setWidth(98);
+        rotateRButton.setPosition(383, 6);
+        rotateRButton.setHeight(98);
+        rotateRButton.setWidth(98);
+        leftButton.addListener(new InputListener() {
+            @Override
+            public boolean touchDown (InputEvent event, float x, float y, int pointer, int button) {
+                currentPointer = pointer;
+                leftReleased = false;
+                rightReleased = true;
+                downReleased = true;
+                movingFigure();
+                return true;
+            }
+
+            @Override
+            public void touchUp (InputEvent event, float x, float y, int pointer, int button) {
+                leftReleased = true;
+                rightReleased = true;
+                downReleased = true;
+            }
+        });
+        rightButton.addListener(new InputListener() {
+            @Override
+            public boolean touchDown (InputEvent event, float x, float y, int pointer, int button) {
+                currentPointer = pointer;
+                rightReleased = false;
+                leftReleased = true;
+                downReleased = true;
+                movingFigure();
+                return true;
+            }
+
+            @Override
+            public void touchUp (InputEvent event, float x, float y, int pointer, int button) {
+                leftReleased = true;
+                rightReleased = true;
+                downReleased = true;
+            }
+        });
+        downButton.addListener(new InputListener() {
+            @Override
+            public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
+                currentPointer = pointer;
+                timer.clear();
+                downReleased = false;
+                movingFigure();
+                leftReleased = true;
+                rightReleased = true;
+                return true;
+            }
+
+            @Override
+            public void touchUp(InputEvent event, float x, float y, int pointer, int button) {
+                leftReleased = true;
+                rightReleased = true;
+                downReleased = true;
+            }
+        });
+        rotateLButton.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                if (rotationAvailable()) {
+                    b.turnLeft(GameScreen.this, cb, cf);
+                }
+            }
+        });
+        rotateRButton.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                if (rotationAvailable()) {
+                    b.turnRight(GameScreen.this, cb, cf);
+                }
+            }
+        });
+        increaseButton.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                myStats.setCurrentSpeed(myStats.getCurrentSpeed() - 1);
+            }
+        });
+        decreaseButton.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                myStats.setCurrentSpeed(myStats.getCurrentSpeed() + 1);
+            }
+        });
+        timer.clear();
+        fallingFigures();
+        stage.addActor(leftButton);
+        stage.addActor(rightButton);
+        stage.addActor(downButton);
+        stage.addActor(increaseButton);
+        stage.addActor(decreaseButton);
+        stage.addActor(rotateLButton);
+        stage.addActor(rotateRButton);
     }
 
     private void fallingFigures() {
-        if (!justCreated)
+        if (!leftReleased || !rightReleased) {
+            timer2.scheduleTask(new Timer.Task() {
+                @Override
+                public void run() {
+                    movingFaster();
+                }
+            }, 16 / Info.FRAMES_PER_SECOND);
+        }
+        boolean downReleasedCheck;
+        if (!justCreated) {
             downPressed = Gdx.input.isKeyPressed(Input.Keys.DOWN);
-        else downPressed = false;
-        if (falling && !downPressed) {
+            downReleasedCheck = downReleased;
+        }
+        else {
+            downPressed = false;
+            downReleasedCheck = true;
+        }
+        if (falling && !downPressed && downReleasedCheck) {
             if (!justCreated)
                 checkBottomClear();
             timer.scheduleTask(new Timer.Task() {
@@ -108,6 +289,8 @@ public class GameScreen implements Screen {
             }, 2 / Info.FRAMES_PER_SECOND);
         }
         else {
+            if (cb.notEmpty())
+                checkBottomClear();
             timer.clear();
             timer.scheduleTask(new Timer.Task() {
                @Override
@@ -120,7 +303,7 @@ public class GameScreen implements Screen {
     }
 
     private void movingFaster() {
-        if (Gdx.input.isKeyPressed(Input.Keys.LEFT)) {
+        if (Gdx.input.isKeyPressed(Input.Keys.LEFT) || !leftReleased) {
             checkLeftClear();
             timer2.clear();
             timer2.scheduleTask(new Timer.Task() {
@@ -130,7 +313,7 @@ public class GameScreen implements Screen {
                 }
             }, 6 / Info.FRAMES_PER_SECOND);
         }
-        if (Gdx.input.isKeyPressed(Input.Keys.RIGHT)) {
+        if (Gdx.input.isKeyPressed(Input.Keys.RIGHT) || !rightReleased) {
             checkRightClear();
             timer2.clear();
             timer2.scheduleTask(new Timer.Task() {
@@ -143,7 +326,7 @@ public class GameScreen implements Screen {
     }
 
     private void movingFigure() {
-        if (Gdx.input.isKeyPressed(Input.Keys.LEFT)) {
+        if (Gdx.input.isKeyPressed(Input.Keys.LEFT) || !leftReleased) {
             checkLeftClear();
             timer2.clear();
             timer2.scheduleTask(new Timer.Task() {
@@ -153,7 +336,7 @@ public class GameScreen implements Screen {
                 }
             }, 16 / Info.FRAMES_PER_SECOND);
         }
-        if (Gdx.input.isKeyPressed(Input.Keys.RIGHT)) {
+        if (Gdx.input.isKeyPressed(Input.Keys.RIGHT) || !rightReleased) {
             checkRightClear();
             timer2.clear();
             timer2.scheduleTask(new Timer.Task() {
@@ -162,6 +345,10 @@ public class GameScreen implements Screen {
                     movingFaster();
                 }
             }, 16 / Info.FRAMES_PER_SECOND);
+        }
+        if (Gdx.input.isKeyPressed(Input.Keys.DOWN) || !downReleased) {
+            timer.clear();
+            fallingFigures();
         }
     }
 
@@ -377,7 +564,7 @@ public class GameScreen implements Screen {
 
     @Override
     public void resize(int width, int height) {
-        viewport.update((int)Info.WIDTH,(int)Info.HEIGHT);
+        //stage.getViewport().update((int)Info.WIDTH,(int)Info.HEIGHT);
     }
 
     @Override
