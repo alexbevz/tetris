@@ -60,7 +60,7 @@ public class GameScreen implements Screen {
 
     private Stage stage;
 
-    private Texture nextFigure;
+    private Sprite nextFigure;
 
     public GameScreen(Main main) {
         this.main = main;
@@ -77,7 +77,7 @@ public class GameScreen implements Screen {
         cb = new Array<>();
         camera = new OrthographicCamera(Info.WIDTH, Info.HEIGHT);
         camera.position.set(Info.WIDTH / 2,Info.HEIGHT / 2, 0);
-        viewport = new FitViewport(Gdx.graphics.getWidth(), Gdx.graphics.getWidth() * 1.7777f);
+        viewport = new FitViewport(Info.WIDTH, Info.HEIGHT, camera);
         stage = new Stage(viewport, main.getBatch());
         buttonsActivate();
         Gdx.input.setInputProcessor(stage);
@@ -95,18 +95,18 @@ public class GameScreen implements Screen {
             main.getBatch().draw(block, block.getX(), block.getY());
         for (Block block : cb)
             main.getBatch().draw(block, block.getX(), block.getY());
-        if (nextFigure != null) {
-            main.getBatch().draw(nextFigure, Info.NEXTFIGURE_BL_X, Info.NEXTFIGURE_BL_Y);
-        }
+        if (nextFigure != null)
+            nextFigure.draw(main.getBatch());
         main.getBatch().end();
         main.getBatch().setProjectionMatrix(camera.combined);
         camera.update();
         inputeHandler();
         lineCheck();
         if (Gdx.input.isTouched(currentPointer)) {
-            if (Gdx.input.getY() < 730 && Gdx.input.getY() > 620) {
-                if (Gdx.input.getX() > 18 && Gdx.input.getX() < 260) {
-                    if (Gdx.input.getX() > 135) {
+            if (Gdx.input.getY() < ((Info.REAL_HEIGHT - Info.BB_HEIGHT * 2) * 0.9125f) + Info.BB_HEIGHT &&
+                    Gdx.input.getY() > (Info.REAL_HEIGHT - Info.BB_HEIGHT * 2) * 0.775f + Info.BB_HEIGHT) {
+                if (Gdx.input.getX() > Info.REAL_WIDTH * 0.0375f && Gdx.input.getX() < Info.REAL_WIDTH * 0.54167f) {
+                    if (Gdx.input.getX() > Info.REAL_WIDTH * 0.28125f) {
                         leftReleased = true;
                         rightReleased = false;
                         downReleased = true;
@@ -117,7 +117,8 @@ public class GameScreen implements Screen {
                     }
                 }
             }
-            else if (Gdx.input.getY() > 730 && Gdx.input.getX() > 18 && Gdx.input.getX() < 260) {
+            else if (Gdx.input.getY() > (Info.REAL_HEIGHT - Info.BB_HEIGHT * 2) * 0.9125f + Info.BB_HEIGHT &&
+                    Gdx.input.getX() > Info.REAL_WIDTH * 0.0375f && Gdx.input.getX() < Info.REAL_WIDTH * 0.54167f) {
                 leftReleased = true;
                 rightReleased = true;
                 downReleased = false;
@@ -426,8 +427,11 @@ public class GameScreen implements Screen {
     }
 
     private void showNextTetromino(int cf, int cs) {
-        nextFigure = assetManager.get("GameScreen/Pieces/" + cf + "_" + cs + ".png", Texture.class);
-
+        Texture texture = assetManager.get("GameScreen/Pieces/" + cf + ".png", Texture.class);
+        nextFigure = new Sprite(texture, texture.getWidth(), texture.getHeight());
+        nextFigure.setOrigin(nextFigure.getWidth() / 2,nextFigure.getHeight() / 2);
+        nextFigure.setRotation(360 - 90 * cs);
+        nextFigure.setPosition(Info.NEXTFIGURE_BL_X,Info.NEXTFIGURE_BL_Y);
     }
 
     private void lineCheck() {
@@ -564,7 +568,7 @@ public class GameScreen implements Screen {
 
     @Override
     public void resize(int width, int height) {
-        //stage.getViewport().update((int)Info.WIDTH,(int)Info.HEIGHT);
+        viewport.update(width, height);
     }
 
     @Override

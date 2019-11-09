@@ -26,7 +26,7 @@ public class Main extends Game {
 		assetManager.load("GameScreen/pOfT.png", Texture.class);
 		assetManager.load("GameScreen/pOfZ.png", Texture.class);
 
-		assetManager.load("GameScreen/Pieces/0_0.png", Texture.class);
+		/*assetManager.load("GameScreen/Pieces/0_0.png", Texture.class);
 		assetManager.load("GameScreen/Pieces/0_1.png", Texture.class);
 		assetManager.load("GameScreen/Pieces/0_2.png", Texture.class);
 		assetManager.load("GameScreen/Pieces/0_3.png", Texture.class);
@@ -53,7 +53,15 @@ public class Main extends Game {
 		assetManager.load("GameScreen/Pieces/6_0.png", Texture.class);
 		assetManager.load("GameScreen/Pieces/6_1.png", Texture.class);
 		assetManager.load("GameScreen/Pieces/6_2.png", Texture.class);
-		assetManager.load("GameScreen/Pieces/6_3.png", Texture.class);
+		assetManager.load("GameScreen/Pieces/6_3.png", Texture.class);*/
+
+        assetManager.load("GameScreen/Pieces/0.png", Texture.class);
+        assetManager.load("GameScreen/Pieces/1.png", Texture.class);
+        assetManager.load("GameScreen/Pieces/2.png", Texture.class);
+        assetManager.load("GameScreen/Pieces/3.png", Texture.class);
+        assetManager.load("GameScreen/Pieces/4.png", Texture.class);
+        assetManager.load("GameScreen/Pieces/5.png", Texture.class);
+        assetManager.load("GameScreen/Pieces/6.png", Texture.class);
 
 		assetManager.finishLoading();
 		setScreen(new GameScreen(this));
