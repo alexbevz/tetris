@@ -54,6 +54,7 @@ public class GameScreen implements Screen {
     private boolean downPressed;
     private boolean justCreated;
     private boolean leftReleased = true, rightReleased = true, downReleased = true;
+    private boolean blockRotate = false;
 
     private Stage stage;
 
@@ -168,6 +169,7 @@ public class GameScreen implements Screen {
         Button rotateLButton = new Button();
         Button rotateRButton = new Button();
         Button resetButton = new Button();
+        Button hardDrop = new Button();
 
         leftButton.setPosition(36, 186);
         leftButton.setHeight(222);
@@ -181,13 +183,13 @@ public class GameScreen implements Screen {
         downButton.setHeight(161);
         downButton.setWidth(228);
 
-        decreaseButton.setPosition(777, 882);
-        decreaseButton.setHeight(133);
-        decreaseButton.setWidth(133);
-
         increaseButton.setPosition(928, 882);
         increaseButton.setHeight(133);
         increaseButton.setWidth(133);
+
+        decreaseButton.setPosition(777, 882);
+        decreaseButton.setHeight(133);
+        decreaseButton.setWidth(133);
 
         rotateLButton.setPosition(652, 25);
         rotateLButton.setHeight(203);
@@ -200,6 +202,10 @@ public class GameScreen implements Screen {
         resetButton.setPosition(804, 434);
         resetButton.setHeight(225);
         resetButton.setWidth(225);
+
+        hardDrop.setPosition(450, 70);
+        hardDrop.setHeight(132);
+        hardDrop.setWidth(132);
 
         leftButton.addListener(new InputListener() {
             @Override
@@ -262,8 +268,9 @@ public class GameScreen implements Screen {
         rotateLButton.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
-                if (rotationAvailable()) {
+                if (rotationAvailable(blockRotate)) {
                     b.turnLeft(GameScreen.this, cb, cf);
+                    falling = true;
                 }
             }
         });
@@ -271,8 +278,9 @@ public class GameScreen implements Screen {
         rotateRButton.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
-                if (rotationAvailable()) {
+                if (rotationAvailable(blockRotate)) {
                     b.turnRight(GameScreen.this, cb, cf);
+                    falling = true;
                 }
             }
         });
@@ -303,6 +311,13 @@ public class GameScreen implements Screen {
             }
         });
 
+        hardDrop.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                useHardDrop();
+            }
+        });
+
         stage.addActor(leftButton);
         stage.addActor(rightButton);
         stage.addActor(downButton);
@@ -311,7 +326,13 @@ public class GameScreen implements Screen {
         stage.addActor(rotateLButton);
         stage.addActor(rotateRButton);
         stage.addActor(resetButton);
+        stage.addActor(hardDrop);
 
+    }
+
+    private void useHardDrop() {
+        while (falling)
+            checkBottomClear();
     }
 
     private void fallingFigures() {
@@ -358,8 +379,7 @@ public class GameScreen implements Screen {
             }, 2 / Info.FRAMES_PER_SECOND);
         }
         else {
-            if (cb.notEmpty())
-                checkBottomClear();
+            blockRotate = true;
             timer.clear();
             timer.scheduleTask(new Timer.Task() {
                @Override
@@ -372,6 +392,7 @@ public class GameScreen implements Screen {
                    updateScore();
                    justCreated = true;
                    createRandomTetromino();
+                   blockRotate = false;
                }
            }, 14 / Info.FRAMES_PER_SECOND);
         }
@@ -446,7 +467,6 @@ public class GameScreen implements Screen {
 
         if (Gdx.input.isKeyJustPressed(Input.Keys.Q)) {
             myStats.setCurrentSpeed(myStats.getCurrentSpeed() - 1);
-            System.out.println(myStats.getCurrentSpeed());
         }
 
         if (Gdx.input.isKeyJustPressed(Input.Keys.E)) {
@@ -454,14 +474,14 @@ public class GameScreen implements Screen {
         }
 
         if (Gdx.input.isKeyJustPressed(Input.Keys.A)) {
-            if (rotationAvailable()) {
+            if (rotationAvailable(blockRotate)) {
                 b.turnLeft(this, cb, cf);
                 falling = true;
             }
         }
 
         if (Gdx.input.isKeyJustPressed(Input.Keys.D)) {
-            if (rotationAvailable()) {
+            if (rotationAvailable(blockRotate)) {
                 b.turnRight(this, cb, cf);
                 falling = true;
             }
@@ -539,7 +559,7 @@ public class GameScreen implements Screen {
             }
             if (count == 10) {
                 clearedLines++;
-                for (int i = 0; i < 4; i++)
+                for (int i = 0; i < 10; i++)
                     for (Block sprite : blocks) {
                         if (sprite.getY() == currentY) {
                             blocks.removeValue(sprite, false);
@@ -560,25 +580,21 @@ public class GameScreen implements Screen {
         switch (clearedLines) {
             case 1:
                 myStats.setCurrentScore((int)(myStats.getCurrentScore() + 400));
-                System.out.println("1");
                 break;
             case 2:
                 myStats.setCurrentScore((int)(myStats.getCurrentScore() + 1000));
-                System.out.println("2");
                 break;
             case 3:
                 myStats.setCurrentScore((int)(myStats.getCurrentScore() + 3000));
-                System.out.println("3");
                 break;
             case 4:
                 myStats.setCurrentScore((int)(myStats.getCurrentScore() + 12000));
-                System.out.println("4");
                 break;
         }
 
     }
 
-    private boolean rotationAvailable() {
+    private boolean rotationAvailable(boolean blockRotate) {
 
         boolean left = true, right = true, other_blocks = true;
         Array<Block> copy = new Array<>();
@@ -587,14 +603,16 @@ public class GameScreen implements Screen {
         copy.addAll(cb);
         b.turnLeft(this, copy, cf);
 
-        for (Block block : copy) {
-            if (block.getX() < Info.LEFT_EDGE_X || block.getX() >= Info.RIGHT_EDGE_X ||
-            block.getY() < Info.BOTTOM_EDGE_Y) {
-                left = false;
-            }
-            for (Block blocks : blocks) {
-                if (blocks.getY() == block.getY() && blocks.getX() == block.getX())
-                    other_blocks = false;
+        for (int i = 0; i < 5; i++) {
+            for (Block block : copy) {
+                if (block.getX() < Info.LEFT_EDGE_X || block.getX() >= Info.RIGHT_EDGE_X ||
+                        block.getY() < Info.BOTTOM_EDGE_Y) {
+                    left = false;
+                }
+                for (Block blocks : blocks) {
+                    if (Math.abs(blocks.getY() - block.getY()) <= 5 && Math.abs(blocks.getX() - block.getX()) <= 5)
+                        other_blocks = false;
+                }
             }
         }
 
@@ -602,18 +620,20 @@ public class GameScreen implements Screen {
         copy.addAll(cb);
         b.turnRight(this, copy, cf);
 
-        for (Block block : copy) {
-            if (block.getX() < Info.LEFT_EDGE_X || block.getX() >= Info.RIGHT_EDGE_X ||
-                    block.getY() < Info.BOTTOM_EDGE_Y) {
-                right = false;
-            }
-            for (Block blocks : blocks) {
-                if (blocks.getY() == block.getY() && blocks.getX() == block.getX())
-                    other_blocks = false;
+        for (int i = 0; i < 5; i++) {
+            for (Block block : copy) {
+                if (block.getX() < Info.LEFT_EDGE_X || block.getX() >= Info.RIGHT_EDGE_X ||
+                        block.getY() < Info.BOTTOM_EDGE_Y) {
+                    right = false;
+                }
+                for (Block blocks : blocks) {
+                    if (Math.abs(blocks.getY() - block.getY()) <= 5 && Math.abs(blocks.getX() - block.getX()) <= 5)
+                        other_blocks = false;
+                }
             }
         }
 
-        return left && right && other_blocks;
+        return left && right && other_blocks && !blockRotate;
     }
 
     private void checkLeftClear() {
