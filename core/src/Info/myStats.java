@@ -2,17 +2,9 @@ package Info;
 
 public class myStats {
 
-    private static final myStats stats = new myStats();
+    private static float currentSpeed = 6;
 
-    private static float currentSpeed = 28;
-    private static float currentScore = 0;
-
-    public static myStats getInstance() {
-        return stats;
-    }
-
-    private myStats() {
-    }
+    private static int currentScore = 0;
 
     public static float getCurrentSpeed() {
         return currentSpeed;
@@ -26,7 +18,7 @@ public class myStats {
         return currentScore;
     }
 
-    public static void setCurrentScore(float currentScore) {
+    public static void setCurrentScore(int currentScore) {
         myStats.currentScore = currentScore;
     }
 }

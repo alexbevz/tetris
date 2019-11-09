@@ -2,34 +2,32 @@ package GameClass;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
-import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.assets.AssetManager;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.badlogic.gdx.physics.box2d.World;
+import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Stage;
-import com.badlogic.gdx.scenes.scene2d.Touchable;
-import com.badlogic.gdx.scenes.scene2d.actions.TouchableAction;
 import com.badlogic.gdx.scenes.scene2d.ui.Button;
+import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
+import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Timer;
 import com.badlogic.gdx.utils.viewport.FitViewport;
-import com.badlogic.gdx.utils.viewport.StretchViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.mygdx.game.Main;
 
 import java.util.ArrayList;
 import java.util.Random;
-
-import javax.swing.GrayFilter;
 
 import Info.Info;
 import Info.myStats;
@@ -41,14 +39,15 @@ public class GameScreen implements Screen {
     private OrthographicCamera camera;
     private Viewport viewport;
 
-    private Array<Block> blocks;
-
-    private Array<Block> cb;  //current block
+    private Array<Block> blocks, cb;  // all field blocks, current block,
 
     private int cs, cf;  //current state, current figure
     private int csNext = -1, cfNext = -1;
+    private int clearedLines = 0;
+    private int currentPointer;
 
     private Block b; //block
+
     private Timer timer, timer2;
 
     private boolean falling;
@@ -56,11 +55,13 @@ public class GameScreen implements Screen {
     private boolean justCreated;
     private boolean leftReleased = true, rightReleased = true, downReleased = true;
 
-    private int currentPointer;
-
     private Stage stage;
 
     private Sprite nextFigure;
+
+    private Texture bg;
+
+    private Label scoreLabel;
 
     public GameScreen(Main main) {
         this.main = main;
@@ -69,6 +70,10 @@ public class GameScreen implements Screen {
 
     @Override
     public void show() {
+
+        scoreLabelGenerate();
+        (bg = assetManager.get("GameScreen/GameBackground.png",
+                Texture.class)).setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
         downPressed = false;
         timer = new Timer();
         timer2 = new Timer();
@@ -81,15 +86,21 @@ public class GameScreen implements Screen {
         stage = new Stage(viewport, main.getBatch());
         buttonsActivate();
         Gdx.input.setInputProcessor(stage);
+        timer.clear();
+        fallingFigures();
+
     }
+
     @Override
     public void render(float delta) {
+
         Gdx.gl.glClearColor(0, 0, 0, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+        int score = Integer.parseInt(("" + myStats.getCurrentScore()).split("\\.")[0]);
+        scoreLabel.setText(score);
         main.getBatch().begin();
         main.getBatch().disableBlending();
-        main.getBatch().draw(new TextureRegion(assetManager.get("GameScreen/GameBackground.png",
-                Texture.class)), 0, 0, Info.WIDTH, Info.HEIGHT);
+        main.getBatch().draw(new TextureRegion(bg), 0, 0, Info.WIDTH, Info.HEIGHT);
         main.getBatch().enableBlending();
         for (Block block : blocks)
             main.getBatch().draw(block, block.getX(), block.getY());
@@ -97,16 +108,22 @@ public class GameScreen implements Screen {
             main.getBatch().draw(block, block.getX(), block.getY());
         if (nextFigure != null)
             nextFigure.draw(main.getBatch());
+        scoreLabel.draw(main.getBatch(), 1);
         main.getBatch().end();
         main.getBatch().setProjectionMatrix(camera.combined);
         camera.update();
         inputeHandler();
-        lineCheck();
+        touchHandler();
+
+    }
+
+    private void touchHandler() {
+
         if (Gdx.input.isTouched(currentPointer)) {
-            if (Gdx.input.getY() < ((Info.REAL_HEIGHT - Info.BB_HEIGHT * 2) * 0.9125f) + Info.BB_HEIGHT &&
-                    Gdx.input.getY() > (Info.REAL_HEIGHT - Info.BB_HEIGHT * 2) * 0.775f + Info.BB_HEIGHT) {
-                if (Gdx.input.getX() > Info.REAL_WIDTH * 0.0375f && Gdx.input.getX() < Info.REAL_WIDTH * 0.54167f) {
-                    if (Gdx.input.getX() > Info.REAL_WIDTH * 0.28125f) {
+            if (Gdx.input.getY() < ((Info.REAL_HEIGHT - Info.BB_HEIGHT * 2) * 0.9046875f) + Info.BB_HEIGHT &&
+                    Gdx.input.getY() > (Info.REAL_HEIGHT - Info.BB_HEIGHT * 2) * 0.786979167f + Info.BB_HEIGHT) {
+                if (Gdx.input.getX() > Info.REAL_WIDTH * 0.0324f && Gdx.input.getX() < Info.REAL_WIDTH * 0.4388f) {
+                    if (Gdx.input.getX() > Info.REAL_WIDTH * 0.236f) {
                         leftReleased = true;
                         rightReleased = false;
                         downReleased = true;
@@ -117,16 +134,32 @@ public class GameScreen implements Screen {
                     }
                 }
             }
-            else if (Gdx.input.getY() > (Info.REAL_HEIGHT - Info.BB_HEIGHT * 2) * 0.9125f + Info.BB_HEIGHT &&
-                    Gdx.input.getX() > Info.REAL_WIDTH * 0.0375f && Gdx.input.getX() < Info.REAL_WIDTH * 0.54167f) {
+            else if (Gdx.input.getY() > (Info.REAL_HEIGHT - Info.BB_HEIGHT * 2) * 0.9046875f + Info.BB_HEIGHT &&
+                    Gdx.input.getX() > Info.REAL_WIDTH * 0.0324f && Gdx.input.getX() < Info.REAL_WIDTH * 0.4388f) {
                 leftReleased = true;
                 rightReleased = true;
                 downReleased = false;
             }
         }
+
+    }
+
+    private void scoreLabelGenerate() {
+
+        FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("Fonts/Myriad Pro Light.otf"));
+        FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
+        parameter.size = 100;
+        parameter.borderWidth = 0f;
+        BitmapFont bitmapFont = generator.generateFont(parameter);
+        scoreLabel = new Label("" + myStats.getCurrentScore(), new Label.LabelStyle(bitmapFont, new Color(229, 230, 255, 1)));
+        scoreLabel.setPosition(800, 1670);
+        scoreLabel.setSize(230,91);
+        scoreLabel.setAlignment(Align.center);
+
     }
 
     private void buttonsActivate() {
+
         Button leftButton = new Button();
         Button rightButton = new Button();
         Button downButton = new Button();
@@ -134,27 +167,40 @@ public class GameScreen implements Screen {
         Button decreaseButton = new Button();
         Button rotateLButton = new Button();
         Button rotateRButton = new Button();
-        leftButton.setPosition(18, 74);
-        leftButton.setHeight(100);
-        leftButton.setWidth(110);
-        rightButton.setPosition(148, 74);
-        rightButton.setHeight(100);
-        rightButton.setWidth(110);
-        downButton.setPosition(72, 8);
-        downButton.setHeight(58);
-        downButton.setWidth(135);
-        increaseButton.setPosition(404, 454);
-        increaseButton.setHeight(56);
-        increaseButton.setWidth(56);
-        decreaseButton.setPosition(341, 454);
-        decreaseButton.setHeight(56);
-        decreaseButton.setWidth(56);
-        rotateLButton.setPosition(283, 6);
-        rotateLButton.setHeight(98);
-        rotateLButton.setWidth(98);
-        rotateRButton.setPosition(383, 6);
-        rotateRButton.setHeight(98);
-        rotateRButton.setWidth(98);
+        Button resetButton = new Button();
+
+        leftButton.setPosition(36, 186);
+        leftButton.setHeight(222);
+        leftButton.setWidth(215);
+
+        rightButton.setPosition(258, 186);
+        rightButton.setHeight(222);
+        rightButton.setWidth(215);
+
+        downButton.setPosition(98, 78);
+        downButton.setHeight(161);
+        downButton.setWidth(228);
+
+        decreaseButton.setPosition(777, 882);
+        decreaseButton.setHeight(133);
+        decreaseButton.setWidth(133);
+
+        increaseButton.setPosition(928, 882);
+        increaseButton.setHeight(133);
+        increaseButton.setWidth(133);
+
+        rotateLButton.setPosition(652, 25);
+        rotateLButton.setHeight(203);
+        rotateLButton.setWidth(203);
+
+        rotateRButton.setPosition(862, 25);
+        rotateRButton.setHeight(203);
+        rotateRButton.setWidth(203);
+
+        resetButton.setPosition(804, 434);
+        resetButton.setHeight(225);
+        resetButton.setWidth(225);
+
         leftButton.addListener(new InputListener() {
             @Override
             public boolean touchDown (InputEvent event, float x, float y, int pointer, int button) {
@@ -173,6 +219,7 @@ public class GameScreen implements Screen {
                 downReleased = true;
             }
         });
+
         rightButton.addListener(new InputListener() {
             @Override
             public boolean touchDown (InputEvent event, float x, float y, int pointer, int button) {
@@ -191,6 +238,7 @@ public class GameScreen implements Screen {
                 downReleased = true;
             }
         });
+
         downButton.addListener(new InputListener() {
             @Override
             public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
@@ -210,6 +258,7 @@ public class GameScreen implements Screen {
                 downReleased = true;
             }
         });
+
         rotateLButton.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
@@ -218,6 +267,7 @@ public class GameScreen implements Screen {
                 }
             }
         });
+
         rotateRButton.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
@@ -226,20 +276,33 @@ public class GameScreen implements Screen {
                 }
             }
         });
+
         increaseButton.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
                 myStats.setCurrentSpeed(myStats.getCurrentSpeed() - 1);
             }
         });
+
         decreaseButton.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
                 myStats.setCurrentSpeed(myStats.getCurrentSpeed() + 1);
             }
         });
-        timer.clear();
-        fallingFigures();
+
+        resetButton.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                blocks.clear();
+                cb.clear();
+                timer.clear();
+                myStats.setCurrentScore(0);
+                justCreated = true;
+                createRandomTetromino();
+            }
+        });
+
         stage.addActor(leftButton);
         stage.addActor(rightButton);
         stage.addActor(downButton);
@@ -247,9 +310,12 @@ public class GameScreen implements Screen {
         stage.addActor(decreaseButton);
         stage.addActor(rotateLButton);
         stage.addActor(rotateRButton);
+        stage.addActor(resetButton);
+
     }
 
     private void fallingFigures() {
+
         if (!leftReleased || !rightReleased) {
             timer2.scheduleTask(new Timer.Task() {
                 @Override
@@ -258,6 +324,7 @@ public class GameScreen implements Screen {
                 }
             }, 16 / Info.FRAMES_PER_SECOND);
         }
+
         boolean downReleasedCheck;
         if (!justCreated) {
             downPressed = Gdx.input.isKeyPressed(Input.Keys.DOWN);
@@ -267,6 +334,7 @@ public class GameScreen implements Screen {
             downPressed = false;
             downReleasedCheck = true;
         }
+
         if (falling && !downPressed && downReleasedCheck) {
             if (!justCreated)
                 checkBottomClear();
@@ -296,14 +364,22 @@ public class GameScreen implements Screen {
             timer.scheduleTask(new Timer.Task() {
                @Override
                public void run() {
+                   blocks.addAll(cb);
+                   cb.clear();
+                   clearedLines = 0;
+                   for (int i = 0; i < 10; i++)
+                       lineCheck();
+                   updateScore();
                    justCreated = true;
                    createRandomTetromino();
                }
            }, 14 / Info.FRAMES_PER_SECOND);
         }
+
     }
 
     private void movingFaster() {
+
         if (Gdx.input.isKeyPressed(Input.Keys.LEFT) || !leftReleased) {
             checkLeftClear();
             timer2.clear();
@@ -314,6 +390,7 @@ public class GameScreen implements Screen {
                 }
             }, 6 / Info.FRAMES_PER_SECOND);
         }
+
         if (Gdx.input.isKeyPressed(Input.Keys.RIGHT) || !rightReleased) {
             checkRightClear();
             timer2.clear();
@@ -324,9 +401,11 @@ public class GameScreen implements Screen {
                 }
             }, 6 / Info.FRAMES_PER_SECOND);
         }
+
     }
 
     private void movingFigure() {
+
         if (Gdx.input.isKeyPressed(Input.Keys.LEFT) || !leftReleased) {
             checkLeftClear();
             timer2.clear();
@@ -351,6 +430,7 @@ public class GameScreen implements Screen {
             timer.clear();
             fallingFigures();
         }
+
     }
 
     private void inputeHandler() {
@@ -358,6 +438,8 @@ public class GameScreen implements Screen {
         if (Gdx.input.isKeyJustPressed(Input.Keys.R)) {
             blocks.clear();
             cb.clear();
+            timer.clear();
+            myStats.setCurrentScore(0);
             justCreated = true;
             createRandomTetromino();
         }
@@ -397,10 +479,13 @@ public class GameScreen implements Screen {
         if (Gdx.input.isKeyJustPressed(Input.Keys.RIGHT)) {
             movingFigure();
         }
+
     }
 
     private void createRandomTetromino() {
+
         Random rand = new Random();
+
         if (csNext == -1) {
             cf = rand.nextInt(7);
             int currentS = rand.nextInt(4);
@@ -421,20 +506,25 @@ public class GameScreen implements Screen {
             falling = true;
             fallingFigures();
         }
+
         cfNext = rand.nextInt(7);
         csNext = rand.nextInt(4);
         showNextTetromino(cfNext, csNext);
+        downReleased = true;
     }
 
     private void showNextTetromino(int cf, int cs) {
+
         Texture texture = assetManager.get("GameScreen/Pieces/" + cf + ".png", Texture.class);
         nextFigure = new Sprite(texture, texture.getWidth(), texture.getHeight());
         nextFigure.setOrigin(nextFigure.getWidth() / 2,nextFigure.getHeight() / 2);
         nextFigure.setRotation(360 - 90 * cs);
         nextFigure.setPosition(Info.NEXTFIGURE_BL_X,Info.NEXTFIGURE_BL_Y);
+
     }
 
     private void lineCheck() {
+
         ArrayList<Float> currentYs = new ArrayList<>();
         for (Sprite sprite : blocks) {
             if (!currentYs.contains(sprite.getY())) {
@@ -448,6 +538,7 @@ public class GameScreen implements Screen {
                     count++;
             }
             if (count == 10) {
+                clearedLines++;
                 for (int i = 0; i < 4; i++)
                     for (Block sprite : blocks) {
                         if (sprite.getY() == currentY) {
@@ -461,14 +552,41 @@ public class GameScreen implements Screen {
                 }
             }
         }
+
+    }
+
+    private void updateScore() {
+
+        switch (clearedLines) {
+            case 1:
+                myStats.setCurrentScore((int)(myStats.getCurrentScore() + 400));
+                System.out.println("1");
+                break;
+            case 2:
+                myStats.setCurrentScore((int)(myStats.getCurrentScore() + 1000));
+                System.out.println("2");
+                break;
+            case 3:
+                myStats.setCurrentScore((int)(myStats.getCurrentScore() + 3000));
+                System.out.println("3");
+                break;
+            case 4:
+                myStats.setCurrentScore((int)(myStats.getCurrentScore() + 12000));
+                System.out.println("4");
+                break;
+        }
+
     }
 
     private boolean rotationAvailable() {
+
         boolean left = true, right = true, other_blocks = true;
         Array<Block> copy = new Array<>();
+
         copy.clear();
         copy.addAll(cb);
         b.turnLeft(this, copy, cf);
+
         for (Block block : copy) {
             if (block.getX() < Info.LEFT_EDGE_X || block.getX() >= Info.RIGHT_EDGE_X ||
             block.getY() < Info.BOTTOM_EDGE_Y) {
@@ -479,9 +597,11 @@ public class GameScreen implements Screen {
                     other_blocks = false;
             }
         }
+
         copy.clear();
         copy.addAll(cb);
         b.turnRight(this, copy, cf);
+
         for (Block block : copy) {
             if (block.getX() < Info.LEFT_EDGE_X || block.getX() >= Info.RIGHT_EDGE_X ||
                     block.getY() < Info.BOTTOM_EDGE_Y) {
@@ -492,10 +612,12 @@ public class GameScreen implements Screen {
                     other_blocks = false;
             }
         }
+
         return left && right && other_blocks;
     }
 
     private void checkLeftClear() {
+
         if (falling) {
             boolean clear = true, equalY;
             float leftXPos = cb.first().getX();
@@ -503,6 +625,7 @@ public class GameScreen implements Screen {
                 if (sprite.getX() < leftXPos)
                     leftXPos = sprite.getX();
             }
+
             if (leftXPos > Info.LEFT_EDGE_X) {
                 for (Sprite sprite : blocks)
                     for (Sprite sprite1 : cb) {
@@ -510,21 +633,26 @@ public class GameScreen implements Screen {
                         if ((sprite.getX() == sprite1.getX() - Info.SQ_W) && equalY)
                             clear = false;
                     }
+
                 if (clear) for (Sprite sprite : cb)
                     sprite.setPosition(sprite.getX() - Info.SQ_W,
                             sprite.getY());
             }
         }
+
     }
 
     private void checkRightClear() {
+
         if (falling) {
+
             boolean clear = true, equalY;
             float rightXPos = cb.first().getX() + cb.first().getWidth();
             for (Sprite sprite : cb) {
                 if (sprite.getX() + sprite.getWidth() > rightXPos)
                     rightXPos = sprite.getX() + sprite.getWidth();
             }
+
             if (rightXPos < Info.RIGHT_EDGE_X) {
                 for (Sprite sprite : blocks)
                     for (Sprite sprite1 : cb) {
@@ -532,20 +660,24 @@ public class GameScreen implements Screen {
                         if ((sprite.getX() == sprite1.getX() + Info.SQ_W) && equalY)
                             clear = false;
                     }
+
                 if (clear) for (Sprite sprite : cb)
                     sprite.setPosition(sprite.getX() + Info.SQ_W,
                             sprite.getY());
             }
         }
+
     }
 
     private void checkBottomClear() {
+
         boolean clear = true, equalX;
         float lowYPos = cb.first().getY();
         for (Sprite sprite2: cb) {
             if (sprite2.getY() < lowYPos)
                 lowYPos = sprite2.getY();
         }
+
         if (lowYPos >= Info.BOTTOM_EDGE_Y) {
             for (Sprite sprite : blocks)
                 for (Sprite sprite1 : cb) {
@@ -554,8 +686,10 @@ public class GameScreen implements Screen {
                             (sprite.getY() < sprite1.getY()) && equalX))
                         clear = false;
                 }
+
             if (lowYPos == Info.BOTTOM_EDGE_Y)
                 clear = false;
+
             if (clear) {
                 for (Sprite sprite2 : cb)
                     sprite2.setPosition(sprite2.getX(),
@@ -591,10 +725,6 @@ public class GameScreen implements Screen {
 
     }
 
-    Array<Block> getCb() {
-        return cb;
-    }
-
     int getCs() {
         return cs;
     }
@@ -603,16 +733,7 @@ public class GameScreen implements Screen {
         this.cs = cs;
     }
 
-    int getCf() {
-        return cf;
-    }
-
-    void setFalling(boolean falling) {
-        this.falling = falling;
-    }
-
     AssetManager getAssetManager() {
         return assetManager;
     }
-
 }
