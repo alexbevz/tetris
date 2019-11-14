@@ -6,6 +6,7 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 
 import GameClass.GameScreen;
+import Info.Info;
 
 public class Main extends Game {
 
@@ -18,7 +19,12 @@ public class Main extends Game {
 		batch = new SpriteBatch();
 		assetManager = new AssetManager();
 
-		assetManager.load("GameScreen/GameBackground.png", Texture.class);
+		if (Info.REAL_HEIGHT >= 1919) {
+			assetManager.load("GameScreen/GameBackground1920.png", Texture.class);
+		} else if (Info.REAL_HEIGHT >= 1279) {
+			assetManager.load("GameScreen/GameBackground1280.png", Texture.class);
+		} else
+			assetManager.load("GameScreen/GameBackground800.png", Texture.class);
 
 		assetManager.load("GameScreen/pOfI.png", Texture.class);
 		assetManager.load("GameScreen/pOfJ.png", Texture.class);

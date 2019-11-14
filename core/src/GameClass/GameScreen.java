@@ -62,7 +62,7 @@ public class GameScreen implements Screen {
 
     private Texture bg;
 
-    private Label scoreLabel;
+    private Label scoreLabel, speedLabel;
 
     public GameScreen(Main main) {
         this.main = main;
@@ -72,9 +72,18 @@ public class GameScreen implements Screen {
     @Override
     public void show() {
 
-        scoreLabelGenerate();
-        (bg = assetManager.get("GameScreen/GameBackground.png",
-                Texture.class)).setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
+        labelsGenerate();
+
+        if (Info.REAL_HEIGHT >= 1919) {
+            (bg = assetManager.get("GameScreen/GameBackground1920.png",
+                    Texture.class)).setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
+        } else if (Info.REAL_HEIGHT >= 1279) {
+            (bg = assetManager.get("GameScreen/GameBackground1280.png",
+                    Texture.class)).setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
+        } else
+            (bg = assetManager.get("GameScreen/GameBackground800.png",
+                    Texture.class)).setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
+
         downPressed = false;
         timer = new Timer();
         timer2 = new Timer();
@@ -98,7 +107,9 @@ public class GameScreen implements Screen {
         Gdx.gl.glClearColor(0, 0, 0, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         int score = Integer.parseInt(("" + myStats.getCurrentScore()).split("\\.")[0]);
+        int speed = Integer.parseInt(("" + myStats.getCurrentSpeed()).split("\\.")[0]);
         scoreLabel.setText(score);
+        speedLabel.setText(61 - speed);
         main.getBatch().begin();
         main.getBatch().disableBlending();
         main.getBatch().draw(new TextureRegion(bg), 0, 0, Info.WIDTH, Info.HEIGHT);
@@ -110,6 +121,7 @@ public class GameScreen implements Screen {
         if (nextFigure != null)
             nextFigure.draw(main.getBatch());
         scoreLabel.draw(main.getBatch(), 1);
+        speedLabel.draw(main.getBatch(), 1);
         main.getBatch().end();
         main.getBatch().setProjectionMatrix(camera.combined);
         camera.update();
@@ -145,18 +157,26 @@ public class GameScreen implements Screen {
 
     }
 
-    private void scoreLabelGenerate() {
+    private Label labelGenerate(String text) {
 
         FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("Fonts/Myriad Pro Light.otf"));
         FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
         parameter.size = 100;
         parameter.borderWidth = 0f;
         BitmapFont bitmapFont = generator.generateFont(parameter);
-        scoreLabel = new Label("" + myStats.getCurrentScore(), new Label.LabelStyle(bitmapFont, new Color(229, 230, 255, 1)));
+        return new Label(text, new Label.LabelStyle(bitmapFont, new Color(229, 230, 255, 1)));
+    }
+
+    private void labelsGenerate() {
+        scoreLabel = labelGenerate("" + myStats.getCurrentScore());
         scoreLabel.setPosition(800, 1670);
         scoreLabel.setSize(230,91);
         scoreLabel.setAlignment(Align.center);
 
+        speedLabel = labelGenerate("" + (60 - myStats.getCurrentSpeed()));
+        speedLabel.setPosition(800, 750);
+        speedLabel.setSize(230,91);
+        speedLabel.setAlignment(Align.center);
     }
 
     private void buttonsActivate() {
@@ -170,6 +190,7 @@ public class GameScreen implements Screen {
         Button rotateRButton = new Button();
         Button resetButton = new Button();
         Button hardDrop = new Button();
+        Button pause = new Button();
 
         leftButton.setPosition(36, 186);
         leftButton.setHeight(222);
@@ -206,6 +227,10 @@ public class GameScreen implements Screen {
         hardDrop.setPosition(450, 70);
         hardDrop.setHeight(132);
         hardDrop.setWidth(132);
+
+        pause.setPosition(450, 70);
+        pause.setHeight(132);
+        pause.setWidth(132);
 
         leftButton.addListener(new InputListener() {
             @Override
@@ -288,13 +313,15 @@ public class GameScreen implements Screen {
         increaseButton.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
-                myStats.setCurrentSpeed(myStats.getCurrentSpeed() - 1);
+                if (myStats.getCurrentSpeed() > 1)
+                    myStats.setCurrentSpeed(myStats.getCurrentSpeed() - 1);
             }
         });
 
         decreaseButton.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
+                if (myStats.getCurrentSpeed() < 60)
                 myStats.setCurrentSpeed(myStats.getCurrentSpeed() + 1);
             }
         });
