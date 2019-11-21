@@ -22,8 +22,10 @@ class Block extends Sprite {
 
 
     private void addI(Array<Block> current_block, AssetManager assetManager) {
-            TextureRegion textureRegion = new TextureRegion(assetManager.get("GameScreen/pOfI.png",
-                    Texture.class), (int) Info.SQ_W, (int) Info.SQ_W);
+        Texture texture;
+        (texture = assetManager.get("GameScreen/Pieces/pOfI.png",
+                Texture.class)).setFilter(Texture.TextureFilter.MipMapLinearNearest, Texture.TextureFilter.Linear);
+        TextureRegion textureRegion = new TextureRegion(texture, (int) Info.SQ_W, (int) Info.SQ_W);
             current_block.add(
                     new Block(Info.CENTER_X - Info.SQ_W, Info.TOP_EDGE_Y - Info.SQ_W * 2, textureRegion),
                     new Block(Info.CENTER_X, Info.TOP_EDGE_Y - Info.SQ_W * 2, textureRegion),
@@ -32,8 +34,10 @@ class Block extends Sprite {
     }
 
     private void addJ(Array<Block> current_block, AssetManager assetManager) {
-            TextureRegion textureRegion = new TextureRegion(assetManager.get("GameScreen/pOfJ.png",
-                    Texture.class), (int) Info.SQ_W, (int) Info.SQ_W);
+        Texture texture;
+        (texture = assetManager.get("GameScreen/Pieces/pOfJ.png",
+                Texture.class)).setFilter(Texture.TextureFilter.MipMapLinearNearest, Texture.TextureFilter.Linear);
+        TextureRegion textureRegion = new TextureRegion(texture, (int) Info.SQ_W, (int) Info.SQ_W);
             current_block.add(
                     new Block(Info.CENTER_X - Info.SQ_W, Info.TOP_EDGE_Y - Info.SQ_W, textureRegion),
                     new Block(Info.CENTER_X, Info.TOP_EDGE_Y - Info.SQ_W, textureRegion),
@@ -42,8 +46,10 @@ class Block extends Sprite {
     }
 
     private void addL(Array<Block> current_block, AssetManager assetManager) {
-            TextureRegion textureRegion = new TextureRegion(assetManager.get("GameScreen/pOfL.png",
-                    Texture.class), (int) Info.SQ_W, (int) Info.SQ_W);
+        Texture texture;
+        (texture = assetManager.get("GameScreen/Pieces/pOfL.png",
+                Texture.class)).setFilter(Texture.TextureFilter.MipMapLinearNearest, Texture.TextureFilter.Linear);
+        TextureRegion textureRegion = new TextureRegion(texture, (int) Info.SQ_W, (int) Info.SQ_W);
             current_block.add(
                     new Block(Info.CENTER_X - Info.SQ_W, Info.TOP_EDGE_Y - Info.SQ_W * 2, textureRegion),
                     new Block(Info.CENTER_X - Info.SQ_W, Info.TOP_EDGE_Y - Info.SQ_W, textureRegion),
@@ -52,8 +58,10 @@ class Block extends Sprite {
     }
 
     private void addZ(Array<Block> current_block, AssetManager assetManager) {
-            TextureRegion textureRegion = new TextureRegion(assetManager.get("GameScreen/pOfZ.png",
-                    Texture.class), (int) Info.SQ_W, (int) Info.SQ_W);
+        Texture texture;
+        (texture = assetManager.get("GameScreen/Pieces/pOfZ.png",
+                Texture.class)).setFilter(Texture.TextureFilter.MipMapLinearNearest, Texture.TextureFilter.Linear);
+        TextureRegion textureRegion = new TextureRegion(texture, (int) Info.SQ_W, (int) Info.SQ_W);
             current_block.add(
                     new Block(Info.CENTER_X - Info.SQ_W, Info.TOP_EDGE_Y - Info.SQ_W, textureRegion),
                     new Block(Info.CENTER_X, Info.TOP_EDGE_Y - Info.SQ_W, textureRegion),
@@ -62,8 +70,10 @@ class Block extends Sprite {
     }
 
     private void addS(Array<Block> current_block, AssetManager assetManager) {
-            TextureRegion textureRegion = new TextureRegion(assetManager.get("GameScreen/pOfS.png",
-                    Texture.class), (int) Info.SQ_W, (int) Info.SQ_W);
+        Texture texture;
+        (texture = assetManager.get("GameScreen/Pieces/pOfS.png",
+                Texture.class)).setFilter(Texture.TextureFilter.MipMapLinearNearest, Texture.TextureFilter.Linear);
+        TextureRegion textureRegion = new TextureRegion(texture, (int) Info.SQ_W, (int) Info.SQ_W);
             current_block.add(
                     new Block(Info.CENTER_X - Info.SQ_W, Info.TOP_EDGE_Y - Info.SQ_W * 2, textureRegion),
                     new Block(Info.CENTER_X, Info.TOP_EDGE_Y - Info.SQ_W * 2, textureRegion),
@@ -72,8 +82,10 @@ class Block extends Sprite {
     }
 
     private void addO(Array<Block> current_block, AssetManager assetManager) {
-            TextureRegion textureRegion = new TextureRegion(assetManager.get("GameScreen/pOfO.png",
-                    Texture.class), (int) Info.SQ_W, (int) Info.SQ_W);
+            Texture texture;
+            (texture = assetManager.get("GameScreen/Pieces/pOfO.png",
+                    Texture.class)).setFilter(Texture.TextureFilter.MipMapLinearNearest, Texture.TextureFilter.Linear);
+            TextureRegion textureRegion = new TextureRegion(texture, (int) Info.SQ_W, (int) Info.SQ_W);
             current_block.add(
                     new Block(Info.CENTER_X - Info.SQ_W, Info.TOP_EDGE_Y - Info.SQ_W * 2, textureRegion),
                     new Block(Info.CENTER_X - Info.SQ_W, Info.TOP_EDGE_Y - Info.SQ_W, textureRegion),
@@ -82,8 +94,10 @@ class Block extends Sprite {
     }
 
     private void addT(Array<Block> current_block, AssetManager assetManager) {
-            TextureRegion textureRegion = new TextureRegion(assetManager.get("GameScreen/pOfT.png",
-                    Texture.class), (int) Info.SQ_W, (int) Info.SQ_W);
+        Texture texture;
+        (texture = assetManager.get("GameScreen/Pieces/pOfT.png",
+                Texture.class)).setFilter(Texture.TextureFilter.MipMapLinearNearest, Texture.TextureFilter.Linear);
+        TextureRegion textureRegion = new TextureRegion(texture, (int) Info.SQ_W, (int) Info.SQ_W);
             current_block.add(
                     new Block(Info.CENTER_X - Info.SQ_W, Info.TOP_EDGE_Y - Info.SQ_W * 2, textureRegion),
                     new Block(Info.CENTER_X, Info.TOP_EDGE_Y - Info.SQ_W, textureRegion),

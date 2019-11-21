@@ -16,5 +16,5 @@ public interface Info {
     float CENTER_X = 326;
     float FRAMES_PER_SECOND = 60.098f;
     float NEXTFIGURE_BL_X = 804;
-    float NEXTFIGURE_BL_Y = 1298;
+    float NEXTFIGURE_BL_Y = 1138;
 }

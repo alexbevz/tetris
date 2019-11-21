@@ -16,9 +16,13 @@ import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.Touchable;
 import com.badlogic.gdx.scenes.scene2d.ui.Button;
+import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
+import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
+import com.badlogic.gdx.scenes.scene2d.utils.SpriteDrawable;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Timer;
@@ -28,6 +32,7 @@ import com.mygdx.game.Main;
 
 import java.util.ArrayList;
 import java.util.Random;
+
 
 import Info.Info;
 import Info.myStats;
@@ -55,6 +60,7 @@ public class GameScreen implements Screen {
     private boolean justCreated;
     private boolean leftReleased = true, rightReleased = true, downReleased = true;
     private boolean blockRotate = false;
+    private boolean pauseState;
 
     private Stage stage;
 
@@ -62,7 +68,10 @@ public class GameScreen implements Screen {
 
     private Texture bg;
 
-    private Label scoreLabel, speedLabel;
+    private Label currentScoreLabel;
+    private Label currentSpeedLabel;
+
+
 
     public GameScreen(Main main) {
         this.main = main;
@@ -72,17 +81,8 @@ public class GameScreen implements Screen {
     @Override
     public void show() {
 
-        labelsGenerate();
-
-        if (Info.REAL_HEIGHT >= 1919) {
-            (bg = assetManager.get("GameScreen/GameBackground1920.png",
-                    Texture.class)).setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
-        } else if (Info.REAL_HEIGHT >= 1279) {
-            (bg = assetManager.get("GameScreen/GameBackground1280.png",
-                    Texture.class)).setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
-        } else
-            (bg = assetManager.get("GameScreen/GameBackground800.png",
-                    Texture.class)).setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
+        (bg = assetManager.get("GameScreen/Background/EmptyGameBackground.png",
+                Texture.class)).setFilter(Texture.TextureFilter.MipMapLinearNearest, Texture.TextureFilter.Linear);
 
         downPressed = false;
         timer = new Timer();
@@ -94,6 +94,7 @@ public class GameScreen implements Screen {
         camera.position.set(Info.WIDTH / 2,Info.HEIGHT / 2, 0);
         viewport = new FitViewport(Info.WIDTH, Info.HEIGHT, camera);
         stage = new Stage(viewport, main.getBatch());
+        labelsGenerate();
         buttonsActivate();
         Gdx.input.setInputProcessor(stage);
         timer.clear();
@@ -108,8 +109,8 @@ public class GameScreen implements Screen {
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         int score = Integer.parseInt(("" + myStats.getCurrentScore()).split("\\.")[0]);
         int speed = Integer.parseInt(("" + myStats.getCurrentSpeed()).split("\\.")[0]);
-        scoreLabel.setText(score);
-        speedLabel.setText(61 - speed);
+        currentScoreLabel.setText(score);
+        currentSpeedLabel.setText(61 - speed);
         main.getBatch().begin();
         main.getBatch().disableBlending();
         main.getBatch().draw(new TextureRegion(bg), 0, 0, Info.WIDTH, Info.HEIGHT);
@@ -118,15 +119,32 @@ public class GameScreen implements Screen {
             main.getBatch().draw(block, block.getX(), block.getY());
         for (Block block : cb)
             main.getBatch().draw(block, block.getX(), block.getY());
-        if (nextFigure != null)
+        if (nextFigure != null) {
             nextFigure.draw(main.getBatch());
-        scoreLabel.draw(main.getBatch(), 1);
-        speedLabel.draw(main.getBatch(), 1);
+        }
         main.getBatch().end();
+        stage.draw();
         main.getBatch().setProjectionMatrix(camera.combined);
         camera.update();
-        inputeHandler();
-        touchHandler();
+        if (!pauseState) {
+            for (Actor actor: stage.getActors()) {
+                if (actor.getName() == null)
+                    actor.setTouchable(Touchable.enabled);
+
+            }
+            timer.start();
+            timer2.start();
+            touchHandler();
+            inputeHandler();
+        } else {
+            for (Actor actor: stage.getActors()) {
+                if (actor.getName() == null)
+                    actor.setTouchable(Touchable.disabled);
+
+            }
+            timer.stop();
+            timer2.stop();
+        }
 
     }
 
@@ -157,40 +175,86 @@ public class GameScreen implements Screen {
 
     }
 
-    private Label labelGenerate(String text) {
+    private Label labelGenerate(String text, int size) {
 
-        FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("Fonts/Myriad Pro Light.otf"));
+        FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("Fonts/MyriadPro-Semibold.ttf"));
         FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
-        parameter.size = 100;
-        parameter.borderWidth = 0f;
+        parameter.size = size;
+        parameter.spaceX = 2;
+        parameter.borderWidth = 0.5f;
         BitmapFont bitmapFont = generator.generateFont(parameter);
-        return new Label(text, new Label.LabelStyle(bitmapFont, new Color(229, 230, 255, 1)));
+        if (text.contains("" + myStats.getCurrentScore()) || text.contains("" + (60 - myStats.getCurrentSpeed())))
+            return new Label(text, new Label.LabelStyle(bitmapFont, Color.WHITE));
+        else
+            return new Label(text, new Label.LabelStyle(bitmapFont, new Color(0xBFDAACFF)));
     }
 
     private void labelsGenerate() {
-        scoreLabel = labelGenerate("" + myStats.getCurrentScore());
-        scoreLabel.setPosition(800, 1670);
-        scoreLabel.setSize(230,91);
+        currentScoreLabel = labelGenerate("" + myStats.getCurrentScore(), 79);
+        currentScoreLabel.setAlignment(Align.center);
+
+        currentSpeedLabel = labelGenerate("" + (60 - myStats.getCurrentSpeed()), 79);
+        currentSpeedLabel.setAlignment(Align.center);
+
+        Label scoreLabel = labelGenerate("SCORE", 69);
         scoreLabel.setAlignment(Align.center);
 
-        speedLabel = labelGenerate("" + (60 - myStats.getCurrentSpeed()));
-        speedLabel.setPosition(800, 750);
-        speedLabel.setSize(230,91);
+        Label speedLabel = labelGenerate("SPEED", 69);
         speedLabel.setAlignment(Align.center);
+
+        Label nextLabel = labelGenerate("NEXT", 69);
+        nextLabel.setAlignment(Align.center);
+
+        Label resetLabel = labelGenerate("RESET", 69);
+        resetLabel.setAlignment(Align.center);
+
+        Table table = new Table();
+        table.top().right();
+        table.padTop(200).padRight(68);
+        table.add(scoreLabel).width(190).height(50).fillY().align(Align.center);
+        table.row();
+        table.add(currentScoreLabel).padTop(92).width(190).height(50).fillX();
+        table.row();
+        table.add(nextLabel).padTop(92).width(190).height(50).fillX();
+        table.row();
+        table.add(speedLabel).padTop(302).width(190).height(50).fillX();
+        table.row();
+        table.add(currentSpeedLabel).padTop(162).width(190).height(50).fillX();
+        table.row();
+        table.add(resetLabel).padTop(250).width(190).height(50).fillX();
+        table.row();
+        table.setFillParent(true);
+
+        stage.addActor(table);
     }
 
     private void buttonsActivate() {
 
-        Button leftButton = new Button();
-        Button rightButton = new Button();
-        Button downButton = new Button();
-        Button increaseButton = new Button();
-        Button decreaseButton = new Button();
-        Button rotateLButton = new Button();
-        Button rotateRButton = new Button();
-        Button resetButton = new Button();
-        Button hardDrop = new Button();
-        Button pause = new Button();
+        Sprite sprite = new Sprite(assetManager.get("GameScreen/Buttons/leftArrow.png", Texture.class));
+
+        Button leftButton = new ImageButton(new SpriteDrawable(sprite));
+
+        sprite = new Sprite(assetManager.get("GameScreen/Buttons/leftArrow.png", Texture.class));
+
+        sprite.flip(true, false);
+
+        Button rightButton = new ImageButton(new SpriteDrawable(sprite));
+        Button downButton = new ImageButton(new SpriteDrawable(new Sprite(assetManager.get("GameScreen/Buttons/downArrow.png", Texture.class))));
+        Button increaseButton = new ImageButton(new SpriteDrawable(new Sprite(assetManager.get("GameScreen/Buttons/addLevel.png", Texture.class))));
+        Button decreaseButton = new ImageButton(new SpriteDrawable(new Sprite(assetManager.get("GameScreen/Buttons/subtractLevel.png", Texture.class))));
+
+        sprite = new Sprite(assetManager.get("GameScreen/Buttons/leftRotate.png", Texture.class));
+
+        Button rotateLButton = new ImageButton(new SpriteDrawable(sprite));
+
+        sprite = new Sprite(assetManager.get("GameScreen/Buttons/leftRotate.png", Texture.class));
+
+        sprite.flip(true, false);
+
+        Button rotateRButton = new ImageButton(new SpriteDrawable(sprite));
+        Button resetButton = new ImageButton(new SpriteDrawable(new Sprite(assetManager.get("GameScreen/Buttons/reset.png", Texture.class))));
+        Button hardDrop = new ImageButton(new SpriteDrawable(new Sprite(assetManager.get("GameScreen/Buttons/hardDrop.png", Texture.class))));
+        Button pauseButton = new ImageButton(new SpriteDrawable(new Sprite(assetManager.get("GameScreen/Buttons/pause.png", Texture.class))));
 
         leftButton.setPosition(36, 186);
         leftButton.setHeight(222);
@@ -200,7 +264,7 @@ public class GameScreen implements Screen {
         rightButton.setHeight(222);
         rightButton.setWidth(215);
 
-        downButton.setPosition(98, 78);
+        downButton.setPosition(140, 20);
         downButton.setHeight(161);
         downButton.setWidth(228);
 
@@ -225,12 +289,13 @@ public class GameScreen implements Screen {
         resetButton.setWidth(225);
 
         hardDrop.setPosition(450, 70);
-        hardDrop.setHeight(132);
-        hardDrop.setWidth(132);
+        hardDrop.setHeight(156);
+        hardDrop.setWidth(156);
 
-        pause.setPosition(450, 70);
-        pause.setHeight(132);
-        pause.setWidth(132);
+        pauseButton.setPosition(934, 1774);
+        pauseButton.setHeight(116);
+        pauseButton.setWidth(116);
+        pauseButton.setName("pauseButton");
 
         leftButton.addListener(new InputListener() {
             @Override
@@ -338,6 +403,13 @@ public class GameScreen implements Screen {
             }
         });
 
+        pauseButton.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                pauseState = !pauseState;
+            }
+        });
+
         hardDrop.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
@@ -354,6 +426,7 @@ public class GameScreen implements Screen {
         stage.addActor(rotateRButton);
         stage.addActor(resetButton);
         stage.addActor(hardDrop);
+        stage.addActor(pauseButton);
 
     }
 
@@ -363,6 +436,8 @@ public class GameScreen implements Screen {
     }
 
     private void fallingFigures() {
+
+        pauseState = false;
 
         if (!leftReleased || !rightReleased) {
             timer2.scheduleTask(new Timer.Task() {
@@ -562,7 +637,8 @@ public class GameScreen implements Screen {
 
     private void showNextTetromino(int cf, int cs) {
 
-        Texture texture = assetManager.get("GameScreen/Pieces/" + cf + ".png", Texture.class);
+        Texture texture = assetManager.get("GameScreen/Next Figures/" + cf + ".png", Texture.class);
+        texture.setFilter(Texture.TextureFilter.MipMapLinearLinear, Texture.TextureFilter.Linear);
         nextFigure = new Sprite(texture, texture.getWidth(), texture.getHeight());
         nextFigure.setOrigin(nextFigure.getWidth() / 2,nextFigure.getHeight() / 2);
         nextFigure.setRotation(360 - 90 * cs);
