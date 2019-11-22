@@ -7,7 +7,6 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 
 import GameClass.GameScreen;
-import Info.Info;
 
 public class Main extends Game {
 

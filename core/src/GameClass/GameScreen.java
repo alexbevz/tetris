@@ -49,16 +49,12 @@ public class GameScreen implements Screen {
     private int cs, cf;  //current state, current figure
     private int csNext = -1, cfNext = -1;
     private int clearedLines = 0;
-    private int currentPointer;
 
     private Block b; //block
 
     private Timer timer, timer2;
 
     private boolean falling;
-    private boolean downPressed;
-    private boolean justCreated;
-    private boolean leftReleased = true, rightReleased = true, downReleased = true;
     private boolean blockRotate = false;
     private boolean pauseState;
 
@@ -71,7 +67,7 @@ public class GameScreen implements Screen {
     private Label currentScoreLabel;
     private Label currentSpeedLabel;
 
-
+    private CurrentTouch currentTouch;
 
     public GameScreen(Main main) {
         this.main = main;
@@ -83,8 +79,6 @@ public class GameScreen implements Screen {
 
         (bg = assetManager.get("GameScreen/Background/EmptyGameBackground.png",
                 Texture.class)).setFilter(Texture.TextureFilter.MipMapLinearNearest, Texture.TextureFilter.Linear);
-
-        downPressed = false;
         timer = new Timer();
         timer2 = new Timer();
         b = new Block();
@@ -98,7 +92,8 @@ public class GameScreen implements Screen {
         buttonsActivate();
         Gdx.input.setInputProcessor(stage);
         timer.clear();
-        fallingFigures();
+        currentTouch = CurrentTouch.EMPTY;
+        createRandomTetromino();
 
     }
 
@@ -134,8 +129,8 @@ public class GameScreen implements Screen {
             }
             timer.start();
             timer2.start();
-            touchHandler();
             inputeHandler();
+            stage.act();
         } else {
             for (Actor actor: stage.getActors()) {
                 if (actor.getName() == null)
@@ -144,33 +139,6 @@ public class GameScreen implements Screen {
             }
             timer.stop();
             timer2.stop();
-        }
-
-    }
-
-    private void touchHandler() {
-
-        if (Gdx.input.isTouched(currentPointer)) {
-            if (Gdx.input.getY() < ((Info.REAL_HEIGHT - Info.BB_HEIGHT * 2) * 0.9046875f) + Info.BB_HEIGHT &&
-                    Gdx.input.getY() > (Info.REAL_HEIGHT - Info.BB_HEIGHT * 2) * 0.786979167f + Info.BB_HEIGHT) {
-                if (Gdx.input.getX() > Info.REAL_WIDTH * 0.0324f && Gdx.input.getX() < Info.REAL_WIDTH * 0.4388f) {
-                    if (Gdx.input.getX() > Info.REAL_WIDTH * 0.236f) {
-                        leftReleased = true;
-                        rightReleased = false;
-                        downReleased = true;
-                    } else {
-                        leftReleased = false;
-                        rightReleased = true;
-                        downReleased = true;
-                    }
-                }
-            }
-            else if (Gdx.input.getY() > (Info.REAL_HEIGHT - Info.BB_HEIGHT * 2) * 0.9046875f + Info.BB_HEIGHT &&
-                    Gdx.input.getX() > Info.REAL_WIDTH * 0.0324f && Gdx.input.getX() < Info.REAL_WIDTH * 0.4388f) {
-                leftReleased = true;
-                rightReleased = true;
-                downReleased = false;
-            }
         }
 
     }
@@ -256,11 +224,11 @@ public class GameScreen implements Screen {
         Button hardDrop = new ImageButton(new SpriteDrawable(new Sprite(assetManager.get("GameScreen/Buttons/hardDrop.png", Texture.class))));
         Button pauseButton = new ImageButton(new SpriteDrawable(new Sprite(assetManager.get("GameScreen/Buttons/pause.png", Texture.class))));
 
-        leftButton.setPosition(36, 186);
+        leftButton.setPosition(26, 186);
         leftButton.setHeight(222);
         leftButton.setWidth(215);
 
-        rightButton.setPosition(258, 186);
+        rightButton.setPosition(268, 186);
         rightButton.setHeight(222);
         rightButton.setWidth(215);
 
@@ -298,61 +266,57 @@ public class GameScreen implements Screen {
         pauseButton.setName("pauseButton");
 
         leftButton.addListener(new InputListener() {
+
             @Override
-            public boolean touchDown (InputEvent event, float x, float y, int pointer, int button) {
-                currentPointer = pointer;
-                leftReleased = false;
-                rightReleased = true;
-                downReleased = true;
+            public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor) {
+                timer2.clear();
+                currentTouch = CurrentTouch.LEFT;
                 movingFigure();
-                return true;
+
             }
 
             @Override
-            public void touchUp (InputEvent event, float x, float y, int pointer, int button) {
-                leftReleased = true;
-                rightReleased = true;
-                downReleased = true;
+            public void exit(InputEvent event, float x, float y, int pointer, Actor toActor) {
+                currentTouch = CurrentTouch.EMPTY;
+                timer2.clear();
             }
+
         });
 
         rightButton.addListener(new InputListener() {
+
             @Override
-            public boolean touchDown (InputEvent event, float x, float y, int pointer, int button) {
-                currentPointer = pointer;
-                rightReleased = false;
-                leftReleased = true;
-                downReleased = true;
+            public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor) {
+                timer2.clear();
+                currentTouch = CurrentTouch.RIGHT;
                 movingFigure();
-                return true;
+
             }
 
             @Override
-            public void touchUp (InputEvent event, float x, float y, int pointer, int button) {
-                leftReleased = true;
-                rightReleased = true;
-                downReleased = true;
+            public void exit(InputEvent event, float x, float y, int pointer, Actor toActor) {
+                currentTouch = CurrentTouch.EMPTY;
+                timer2.clear();
             }
+
         });
 
         downButton.addListener(new InputListener() {
+
             @Override
-            public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
-                currentPointer = pointer;
-                timer.clear();
-                downReleased = false;
+            public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor) {
+                timer2.clear();
+                currentTouch = CurrentTouch.DOWN;
                 movingFigure();
-                leftReleased = true;
-                rightReleased = true;
-                return true;
+
             }
 
             @Override
-            public void touchUp(InputEvent event, float x, float y, int pointer, int button) {
-                leftReleased = true;
-                rightReleased = true;
-                downReleased = true;
+            public void exit(InputEvent event, float x, float y, int pointer, Actor toActor) {
+                currentTouch = CurrentTouch.EMPTY;
+                timer2.clear();
             }
+
         });
 
         rotateLButton.addListener(new ChangeListener() {
@@ -398,7 +362,6 @@ public class GameScreen implements Screen {
                 cb.clear();
                 timer.clear();
                 myStats.setCurrentScore(0);
-                justCreated = true;
                 createRandomTetromino();
             }
         });
@@ -437,45 +400,21 @@ public class GameScreen implements Screen {
 
     private void fallingFigures() {
 
-        pauseState = false;
-
-        if (!leftReleased || !rightReleased) {
-            timer2.scheduleTask(new Timer.Task() {
-                @Override
-                public void run() {
-                    movingFaster();
-                }
-            }, 16 / Info.FRAMES_PER_SECOND);
-        }
-
-        boolean downReleasedCheck;
-        if (!justCreated) {
-            downPressed = Gdx.input.isKeyPressed(Input.Keys.DOWN);
-            downReleasedCheck = downReleased;
-        }
-        else {
-            downPressed = false;
-            downReleasedCheck = true;
-        }
-
-        if (falling && !downPressed && downReleasedCheck) {
-            if (!justCreated)
-                checkBottomClear();
-            timer.scheduleTask(new Timer.Task() {
-                @Override
-                public void run() {
-                    justCreated = false;
-                    fallingFigures();
-                }
-            }, myStats.getCurrentSpeed() / Info.FRAMES_PER_SECOND);
-        }
-        else if (falling) {
+        if (falling && !(currentTouch == CurrentTouch.DOWN) && !(Gdx.input.isKeyPressed(Input.Keys.DOWN))) {
             timer.clear();
             checkBottomClear();
             timer.scheduleTask(new Timer.Task() {
                 @Override
                 public void run() {
-                    justCreated = false;
+                    fallingFigures();
+                }
+            }, myStats.getCurrentSpeed() / Info.FRAMES_PER_SECOND);
+        } else if (falling) {
+            timer.clear();
+            checkBottomClear();
+            timer.scheduleTask(new Timer.Task() {
+                @Override
+                public void run() {
                     fallingFigures();
                 }
             }, 2 / Info.FRAMES_PER_SECOND);
@@ -492,7 +431,6 @@ public class GameScreen implements Screen {
                    for (int i = 0; i < 10; i++)
                        lineCheck();
                    updateScore();
-                   justCreated = true;
                    createRandomTetromino();
                    blockRotate = false;
                }
@@ -503,7 +441,7 @@ public class GameScreen implements Screen {
 
     private void movingFaster() {
 
-        if (Gdx.input.isKeyPressed(Input.Keys.LEFT) || !leftReleased) {
+        if (Gdx.input.isKeyPressed(Input.Keys.LEFT)  || currentTouch == CurrentTouch.LEFT) {
             checkLeftClear();
             timer2.clear();
             timer2.scheduleTask(new Timer.Task() {
@@ -514,7 +452,7 @@ public class GameScreen implements Screen {
             }, 6 / Info.FRAMES_PER_SECOND);
         }
 
-        if (Gdx.input.isKeyPressed(Input.Keys.RIGHT) || !rightReleased) {
+        if (Gdx.input.isKeyPressed(Input.Keys.RIGHT) || currentTouch == CurrentTouch.RIGHT) {
             checkRightClear();
             timer2.clear();
             timer2.scheduleTask(new Timer.Task() {
@@ -529,7 +467,7 @@ public class GameScreen implements Screen {
 
     private void movingFigure() {
 
-        if (Gdx.input.isKeyPressed(Input.Keys.LEFT) || !leftReleased) {
+        if (Gdx.input.isKeyPressed(Input.Keys.LEFT) || currentTouch == CurrentTouch.LEFT) {
             checkLeftClear();
             timer2.clear();
             timer2.scheduleTask(new Timer.Task() {
@@ -539,7 +477,8 @@ public class GameScreen implements Screen {
                 }
             }, 16 / Info.FRAMES_PER_SECOND);
         }
-        if (Gdx.input.isKeyPressed(Input.Keys.RIGHT) || !rightReleased) {
+
+        if (Gdx.input.isKeyPressed(Input.Keys.RIGHT) || currentTouch == CurrentTouch.RIGHT) {
             checkRightClear();
             timer2.clear();
             timer2.scheduleTask(new Timer.Task() {
@@ -549,7 +488,8 @@ public class GameScreen implements Screen {
                 }
             }, 16 / Info.FRAMES_PER_SECOND);
         }
-        if (Gdx.input.isKeyPressed(Input.Keys.DOWN) || !downReleased) {
+
+        if (Gdx.input.isKeyPressed(Input.Keys.DOWN)  || currentTouch == CurrentTouch.DOWN) {
             timer.clear();
             fallingFigures();
         }
@@ -563,7 +503,6 @@ public class GameScreen implements Screen {
             cb.clear();
             timer.clear();
             myStats.setCurrentScore(0);
-            justCreated = true;
             createRandomTetromino();
         }
 
@@ -589,18 +528,12 @@ public class GameScreen implements Screen {
             }
         }
 
-        if (Gdx.input.isKeyJustPressed(Input.Keys.DOWN)) {
-            timer.clear();
-            fallingFigures();
-        }
+        if (Gdx.input.isKeyJustPressed(Input.Keys.SPACE))
+            useHardDrop();
 
-        if (Gdx.input.isKeyJustPressed(Input.Keys.LEFT)) {
+        if (Gdx.input.isKeyJustPressed(Input.Keys.DOWN) || Gdx.input.isKeyJustPressed(Input.Keys.LEFT) ||
+                Gdx.input.isKeyJustPressed(Input.Keys.RIGHT))
             movingFigure();
-        }
-
-        if (Gdx.input.isKeyJustPressed(Input.Keys.RIGHT)) {
-            movingFigure();
-        }
 
     }
 
@@ -632,7 +565,6 @@ public class GameScreen implements Screen {
         cfNext = rand.nextInt(7);
         csNext = rand.nextInt(4);
         showNextTetromino(cfNext, csNext);
-        downReleased = true;
     }
 
     private void showNextTetromino(int cf, int cs) {
