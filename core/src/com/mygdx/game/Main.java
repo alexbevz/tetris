@@ -2,6 +2,7 @@ package com.mygdx.game;
 
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.assets.AssetManager;
+import com.badlogic.gdx.assets.loaders.TextureLoader;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 
@@ -19,28 +20,35 @@ public class Main extends Game {
 		batch = new SpriteBatch();
 		assetManager = new AssetManager();
 
-		if (Info.REAL_HEIGHT >= 1919) {
-			assetManager.load("GameScreen/GameBackground1920.png", Texture.class);
-		} else if (Info.REAL_HEIGHT >= 1279) {
-			assetManager.load("GameScreen/GameBackground1280.png", Texture.class);
-		} else
-			assetManager.load("GameScreen/GameBackground800.png", Texture.class);
+		TextureLoader.TextureParameter textureParameter = new TextureLoader.TextureParameter();
+		textureParameter.genMipMaps = true;
 
-		assetManager.load("GameScreen/pOfI.png", Texture.class);
-		assetManager.load("GameScreen/pOfJ.png", Texture.class);
-		assetManager.load("GameScreen/pOfL.png", Texture.class);
-		assetManager.load("GameScreen/pOfO.png", Texture.class);
-		assetManager.load("GameScreen/pOfS.png", Texture.class);
-		assetManager.load("GameScreen/pOfT.png", Texture.class);
-		assetManager.load("GameScreen/pOfZ.png", Texture.class);
+		assetManager.load("GameScreen/Background/EmptyGameBackground.png", Texture.class, textureParameter);
 
-        assetManager.load("GameScreen/Pieces/0.png", Texture.class);
-        assetManager.load("GameScreen/Pieces/1.png", Texture.class);
-        assetManager.load("GameScreen/Pieces/2.png", Texture.class);
-        assetManager.load("GameScreen/Pieces/3.png", Texture.class);
-        assetManager.load("GameScreen/Pieces/4.png", Texture.class);
-        assetManager.load("GameScreen/Pieces/5.png", Texture.class);
-        assetManager.load("GameScreen/Pieces/6.png", Texture.class);
+		assetManager.load("GameScreen/Buttons/addLevel.png", Texture.class);
+		assetManager.load("GameScreen/Buttons/subtractLevel.png", Texture.class);
+		assetManager.load("GameScreen/Buttons/downArrow.png", Texture.class);
+		assetManager.load("GameScreen/Buttons/hardDrop.png", Texture.class);
+		assetManager.load("GameScreen/Buttons/leftArrow.png", Texture.class);
+		assetManager.load("GameScreen/Buttons/leftRotate.png", Texture.class);
+		assetManager.load("GameScreen/Buttons/reset.png", Texture.class);
+		assetManager.load("GameScreen/Buttons/pause.png", Texture.class);
+
+		assetManager.load("GameScreen/Pieces/pOfI.png", Texture.class, textureParameter);
+		assetManager.load("GameScreen/Pieces/pOfJ.png", Texture.class, textureParameter);
+		assetManager.load("GameScreen/Pieces/pOfL.png", Texture.class, textureParameter);
+		assetManager.load("GameScreen/Pieces/pOfO.png", Texture.class, textureParameter);
+		assetManager.load("GameScreen/Pieces/pOfS.png", Texture.class, textureParameter);
+		assetManager.load("GameScreen/Pieces/pOfT.png", Texture.class, textureParameter);
+		assetManager.load("GameScreen/Pieces/pOfZ.png", Texture.class, textureParameter);
+
+        assetManager.load("GameScreen/Next Figures/0.png", Texture.class, textureParameter);
+        assetManager.load("GameScreen/Next Figures/1.png", Texture.class, textureParameter);
+        assetManager.load("GameScreen/Next Figures/2.png", Texture.class, textureParameter);
+        assetManager.load("GameScreen/Next Figures/3.png", Texture.class, textureParameter);
+        assetManager.load("GameScreen/Next Figures/4.png", Texture.class, textureParameter);
+        assetManager.load("GameScreen/Next Figures/5.png", Texture.class, textureParameter);
+        assetManager.load("GameScreen/Next Figures/6.png", Texture.class, textureParameter);
 
 		assetManager.finishLoading();
 
