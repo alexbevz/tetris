@@ -1,5 +1,7 @@
 package GameClass;
 
+import Info.Info;
+import Info.myStats;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
@@ -12,11 +14,7 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
-import com.badlogic.gdx.scenes.scene2d.Actor;
-import com.badlogic.gdx.scenes.scene2d.InputEvent;
-import com.badlogic.gdx.scenes.scene2d.InputListener;
-import com.badlogic.gdx.scenes.scene2d.Stage;
-import com.badlogic.gdx.scenes.scene2d.Touchable;
+import com.badlogic.gdx.scenes.scene2d.*;
 import com.badlogic.gdx.scenes.scene2d.ui.Button;
 import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
@@ -32,10 +30,6 @@ import com.mygdx.game.Main;
 
 import java.util.ArrayList;
 import java.util.Random;
-
-
-import Info.Info;
-import Info.myStats;
 
 public class GameScreen implements Screen {
 
@@ -85,7 +79,7 @@ public class GameScreen implements Screen {
         blocks = new Array<>();
         cb = new Array<>();
         camera = new OrthographicCamera(Info.WIDTH, Info.HEIGHT);
-        camera.position.set(Info.WIDTH / 2,Info.HEIGHT / 2, 0);
+        camera.position.set(Info.WIDTH / 2, Info.HEIGHT / 2, 0);
         viewport = new FitViewport(Info.WIDTH, Info.HEIGHT, camera);
         stage = new Stage(viewport, main.getBatch());
         labelsGenerate();
@@ -122,7 +116,7 @@ public class GameScreen implements Screen {
         main.getBatch().setProjectionMatrix(camera.combined);
         camera.update();
         if (!pauseState) {
-            for (Actor actor: stage.getActors()) {
+            for (Actor actor : stage.getActors()) {
                 if (actor.getName() == null)
                     actor.setTouchable(Touchable.enabled);
 
@@ -132,7 +126,7 @@ public class GameScreen implements Screen {
             inputeHandler();
             stage.act();
         } else {
-            for (Actor actor: stage.getActors()) {
+            for (Actor actor : stage.getActors()) {
                 if (actor.getName() == null)
                     actor.setTouchable(Touchable.disabled);
 
@@ -351,7 +345,7 @@ public class GameScreen implements Screen {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
                 if (myStats.getCurrentSpeed() < 60)
-                myStats.setCurrentSpeed(myStats.getCurrentSpeed() + 1);
+                    myStats.setCurrentSpeed(myStats.getCurrentSpeed() + 1);
             }
         });
 
@@ -418,30 +412,29 @@ public class GameScreen implements Screen {
                     fallingFigures();
                 }
             }, 2 / Info.FRAMES_PER_SECOND);
-        }
-        else {
+        } else {
             blockRotate = true;
             timer.clear();
             timer.scheduleTask(new Timer.Task() {
-               @Override
-               public void run() {
-                   blocks.addAll(cb);
-                   cb.clear();
-                   clearedLines = 0;
-                   for (int i = 0; i < 10; i++)
-                       lineCheck();
-                   updateScore();
-                   createRandomTetromino();
-                   blockRotate = false;
-               }
-           }, 14 / Info.FRAMES_PER_SECOND);
+                @Override
+                public void run() {
+                    blocks.addAll(cb);
+                    cb.clear();
+                    clearedLines = 0;
+                    for (int i = 0; i < 10; i++)
+                        lineCheck();
+                    updateScore();
+                    createRandomTetromino();
+                    blockRotate = false;
+                }
+            }, 14 / Info.FRAMES_PER_SECOND);
         }
 
     }
 
     private void movingFaster() {
 
-        if (Gdx.input.isKeyPressed(Input.Keys.LEFT)  || currentTouch == CurrentTouch.LEFT) {
+        if (Gdx.input.isKeyPressed(Input.Keys.LEFT) || currentTouch == CurrentTouch.LEFT) {
             checkLeftClear();
             timer2.clear();
             timer2.scheduleTask(new Timer.Task() {
@@ -489,7 +482,7 @@ public class GameScreen implements Screen {
             }, 16 / Info.FRAMES_PER_SECOND);
         }
 
-        if (Gdx.input.isKeyPressed(Input.Keys.DOWN)  || currentTouch == CurrentTouch.DOWN) {
+        if (Gdx.input.isKeyPressed(Input.Keys.DOWN) || currentTouch == CurrentTouch.DOWN) {
             timer.clear();
             fallingFigures();
         }
@@ -550,8 +543,7 @@ public class GameScreen implements Screen {
             b.newTetromino(this, cf, currentS, cb);
             falling = true;
             fallingFigures();
-        }
-        else {
+        } else {
             cf = cfNext;
             int currentS = csNext;
             cs = 0;
@@ -572,9 +564,9 @@ public class GameScreen implements Screen {
         Texture texture = assetManager.get("GameScreen/Next Figures/" + cf + ".png", Texture.class);
         texture.setFilter(Texture.TextureFilter.MipMapLinearLinear, Texture.TextureFilter.Linear);
         nextFigure = new Sprite(texture, texture.getWidth(), texture.getHeight());
-        nextFigure.setOrigin(nextFigure.getWidth() / 2,nextFigure.getHeight() / 2);
+        nextFigure.setOrigin(nextFigure.getWidth() / 2, nextFigure.getHeight() / 2);
         nextFigure.setRotation(360 - 90 * cs);
-        nextFigure.setPosition(Info.NEXTFIGURE_BL_X,Info.NEXTFIGURE_BL_Y);
+        nextFigure.setPosition(Info.NEXTFIGURE_BL_X, Info.NEXTFIGURE_BL_Y);
 
     }
 
@@ -602,7 +594,7 @@ public class GameScreen implements Screen {
                     }
                 for (Block sprite : blocks) {
                     if (sprite.getY() > currentY) {
-                        sprite.setPosition(sprite.getX(),sprite.getY() - Info.SQ_W);
+                        sprite.setPosition(sprite.getX(), sprite.getY() - Info.SQ_W);
                     }
                 }
             }
@@ -614,16 +606,16 @@ public class GameScreen implements Screen {
 
         switch (clearedLines) {
             case 1:
-                myStats.setCurrentScore((int)(myStats.getCurrentScore() + 400));
+                myStats.setCurrentScore((int) (myStats.getCurrentScore() + 400));
                 break;
             case 2:
-                myStats.setCurrentScore((int)(myStats.getCurrentScore() + 1000));
+                myStats.setCurrentScore((int) (myStats.getCurrentScore() + 1000));
                 break;
             case 3:
-                myStats.setCurrentScore((int)(myStats.getCurrentScore() + 3000));
+                myStats.setCurrentScore((int) (myStats.getCurrentScore() + 3000));
                 break;
             case 4:
-                myStats.setCurrentScore((int)(myStats.getCurrentScore() + 12000));
+                myStats.setCurrentScore((int) (myStats.getCurrentScore() + 12000));
                 break;
         }
 
@@ -728,7 +720,7 @@ public class GameScreen implements Screen {
 
         boolean clear = true, equalX;
         float lowYPos = cb.first().getY();
-        for (Sprite sprite2: cb) {
+        for (Sprite sprite2 : cb) {
             if (sprite2.getY() < lowYPos)
                 lowYPos = sprite2.getY();
         }
